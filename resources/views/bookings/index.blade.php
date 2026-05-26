@@ -97,10 +97,31 @@
         <ul class="nav-links">
             <li><a href="{{ route('bookings.index') }}" class="active">My Bookings</a></li>
             <li><a href="{{ route('home') }}">Find Destinations</a></li>
-            <li><a href="#" class="nav-cta"><i class="fa-solid fa-user"></i> Dashboard</a></li>
+            @auth
+                <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; padding: 0.5rem 0.9rem; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.background='var(--primary-light)';" onmouseout="this.style.color='var(--text-muted)'; this.style.background='none';">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </form>
+                </li>
+            @else
+                <li><a href="{{ route('login') }}" class="nav-cta"><i class="fa-solid fa-user"></i> Sign In</a></li>
+            @endauth
         </ul>
     </div>
 </nav>
+
+@if(session('success'))
+    <div class="page-content" style="padding-top: 1.5rem; padding-bottom: 0; max-width: 1200px; margin: 0 auto;">
+        <div style="background:#e6faf7; border:1px solid #a7f3d0; border-radius:10px; padding:1rem 1.5rem; color:#047857; font-size:0.9rem; display:flex; align-items:center; gap:0.6rem; box-shadow: var(--shadow);" class="fade-in">
+            <i class="fa-solid fa-circle-check" style="font-size:1.1rem"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    </div>
+@endif
 
 <!-- MINI HERO -->
 <div style="background:linear-gradient(135deg,#1c1c2e,#FF5A30);padding:3rem 1.5rem 6rem;text-align:center;">

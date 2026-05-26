@@ -210,10 +210,26 @@
         <ul class="nav-links">
             <li><a href="{{ route('bookings.index') }}">My Bookings</a></li>
             <li><a href="{{ route('home') }}">Find Destinations</a></li>
-            <li><a href="#" class="nav-cta"><i class="fa-solid fa-user"></i> Dashboard</a></li>
+            @auth
+                <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; padding: 0.5rem 0.9rem; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 0.35rem;" onmouseover="this.style.color='var(--primary)'; this.style.background='var(--primary-light)';" onmouseout="this.style.color='var(--text-muted)'; this.style.background='none';">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </form>
+                </li>
+            @else
+                <li><a href="{{ route('login') }}" class="nav-cta"><i class="fa-solid fa-user"></i> Sign In</a></li>
+            @endauth
         </ul>
     </div>
 </nav>
+
+@php
+    $flight = session('flight_' . $booking->booking_reference);
+@endphp
 
 <!-- MAIN CONTENT -->
 <div class="ticket-page">
@@ -227,9 +243,9 @@
 
     <div class="ticket-board fade-in">
         <!-- Header -->
-        <div class="ticket-header">
+        <div class="ticket-header" style="{{ $flight ? 'background: linear-gradient(135deg, var(--secondary), #56a8f5);' : '' }}">
             <div class="ticket-header-logo">
-                <i class="fa-solid fa-plane"></i> BOARDING PASS / RES
+                <i class="fa-solid fa-plane"></i> {{ $flight ? 'FLIGHT PASS / BOARDING' : 'BOARDING PASS / RES' }}
             </div>
             <div class="ticket-header-ref">
                 REF: {{ $booking->booking_reference }}
@@ -241,8 +257,13 @@
             <img src="{{ $booking->destination->image_url }}" alt="{{ $booking->destination->name }}">
             <div class="ticket-hero-overlay"></div>
             <div class="ticket-hero-info">
-                <h2>{{ $booking->destination->name }}</h2>
-                <p><i class="fa-solid fa-location-dot"></i> {{ $booking->destination->location }}</p>
+                @if($flight)
+                    <h2>{{ $flight['departure_code'] }} <i class="fa-solid fa-arrow-right-long" style="font-size:1.1rem;vertical-align:middle;margin:0 0.5rem"></i> {{ $flight['destination_code'] }}</h2>
+                    <p><i class="fa-solid fa-plane-departure"></i> {{ $flight['airline'] }} · Flight {{ $flight['flight_number'] }}</p>
+                @else
+                    <h2>{{ $booking->destination->name }}</h2>
+                    <p><i class="fa-solid fa-location-dot"></i> {{ $booking->destination->location }}</p>
+                @endif
             </div>
         </div>
 
@@ -267,8 +288,8 @@
                     <span>{{ date('d M, Y', strtotime($booking->start_date)) }}</span>
                 </div>
                 <div class="ticket-info-group">
-                    <label>Return Date</label>
-                    <span>{{ date('d M, Y', strtotime($booking->end_date)) }}</span>
+                    <label>{{ $flight ? 'Route details' : 'Return Date' }}</label>
+                    <span>{{ $flight ? $flight['departure_city'] . ' to ' . $flight['destination_city'] : date('d M, Y', strtotime($booking->end_date)) }}</span>
                 </div>
                 <div class="ticket-info-group">
                     <label>Total Travelers</label>
@@ -286,7 +307,30 @@
                     <span>${{ number_format($booking->total_price) }}</span>
                 </div>
                 <div style="font-size:0.8rem;color:var(--text-muted);text-align:right;">
-                    Base rate: ${{ number_format($booking->destination->min_budget) }} x {{ $booking->num_travelers }} traveler(s)
+                    @if($flight)
+                        Base flight rate: ${{ number_format($flight['price']) }} x {{ $booking->num_travelers }} traveler(s)
+                    @else
+                        Base rate: ${{ number_format($booking->destination->min_budget) }} x {{ $booking->num_travelers }} traveler(s)
+                    @endif
+                </div>
+            </div>
+
+            <!-- Transaction Details Box -->
+            <div style="margin-top:1.5rem; padding:1.25rem 1.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                <h4 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;"><i class="fa-solid fa-file-invoice-dollar"></i> Transaction Details</h4>
+                <div class="ticket-info-grid" style="margin-bottom: 0; gap: 1rem;">
+                    <div class="ticket-info-group">
+                        <label>Transaction ID</label>
+                        <span style="font-family: monospace;">TXN-{{ strtoupper(Str::random(8)) }}</span>
+                    </div>
+                    <div class="ticket-info-group">
+                        <label>Payment Method</label>
+                        <span><i class="fa-brands fa-cc-visa" style="color:#1434CB"></i> Visa ending in 4242</span>
+                    </div>
+                    <div class="ticket-info-group">
+                        <label>Payment Date</label>
+                        <span>{{ date('d M, Y H:i', strtotime($booking->created_at ?? now())) }}</span>
+                    </div>
                 </div>
             </div>
 

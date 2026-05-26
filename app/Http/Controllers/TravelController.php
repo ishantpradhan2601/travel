@@ -11,7 +11,8 @@ class TravelController extends Controller
     public function index()
     {
         $activities = Activity::all();
-        return view('welcome', compact('activities'));
+        $advertisements = Destination::inRandomOrder()->take(20)->get();
+        return view('welcome', compact('activities', 'advertisements'));
     }
 
     public function recommend(Request $request)
