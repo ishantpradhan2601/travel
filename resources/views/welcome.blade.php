@@ -28,6 +28,20 @@
             img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
         }
 
+        function handleHotelImgError(img) {
+            img.onerror = null;
+            const hotels = [
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = hotels[Math.floor(Math.random() * hotels.length)];
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
@@ -555,7 +569,7 @@
                         <div>
                             <!-- Card Image -->
                             <div class="card-image-wrap" style="position: relative; overflow: hidden;">
-                                <img src="{{ $hotel->image_url }}" alt="{{ $hotel->name }}" class="card-image" style="height: 170px; width: 100%; object-fit: cover;" onerror="handleImgError(this)">
+                                <img src="{{ $hotel->image_url }}" alt="{{ $hotel->name }}" class="card-image" style="height: 170px; width: 100%; object-fit: cover;" onerror="handleHotelImgError(this)">
                                 <span class="card-badge" style="background: {{ $hotel->type == 'hotel' ? 'var(--primary)' : 'var(--accent)' }}; font-size: 0.65rem; padding: 0.2rem 0.55rem; top: 0.75rem; left: 0.75rem; border-radius:100px; text-transform:uppercase; font-weight:700; position:absolute; color:white; pointer-events:none;">
                                     ✦ {{ $hotel->type == 'hotel' ? 'Hotel' : 'Airbnb' }}
                                 </span>

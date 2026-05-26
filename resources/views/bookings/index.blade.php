@@ -105,6 +105,20 @@
             img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
         }
 
+        function handleHotelImgError(img) {
+            img.onerror = null;
+            const hotels = [
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = hotels[Math.floor(Math.random() * hotels.length)];
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             const iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
@@ -252,7 +266,7 @@
                         <tr>
                             <td>
                                 <div class="dest-meta-cell">
-                                    <img src="{{ $booking->hotel ? $booking->hotel->image_url : $booking->destination->image_url }}" alt="{{ $booking->hotel ? $booking->hotel->name : $booking->destination->name }}" class="dest-meta-img" onerror="handleImgError(this)">
+                                    <img src="{{ $booking->hotel ? $booking->hotel->image_url : $booking->destination->image_url }}" alt="{{ $booking->hotel ? $booking->hotel->name : $booking->destination->name }}" class="dest-meta-img" onerror="{{ $booking->hotel ? 'handleHotelImgError(this)' : 'handleImgError(this)' }}">
                                     <div>
                                         <div class="dest-meta-title">
                                             @if($booking->hotel)

@@ -162,6 +162,14 @@
             align-items: center;
             gap: 0.4rem;
             margin-top: 2rem;
+            background: #ffffff !important; /* Keep background always white for scanning */
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid #e5e7eb;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .ticket-barcode {
             width: 100%;
@@ -179,7 +187,7 @@
         .ticket-barcode-num {
             font-size: 0.72rem;
             font-family: monospace;
-            color: var(--text-muted);
+            color: #4b5563 !important; /* Dark text for readability on white background */
             letter-spacing: 0.2em;
         }
 
@@ -216,6 +224,20 @@
                 'https://images.unsplash.com/photo-1524850301259-7729d41d11d9?auto=format&fit=crop&w=800&q=80'
             ];
             img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
+        }
+
+        function handleHotelImgError(img) {
+            img.onerror = null;
+            const hotels = [
+                'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = hotels[Math.floor(Math.random() * hotels.length)];
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -334,7 +356,7 @@
 
         <!-- Banner Visual -->
         <div class="ticket-hero">
-            <img src="{{ $hotel ? $hotel->image_url : $booking->destination->image_url }}" alt="{{ $hotel ? $hotel->name : $booking->destination->name }}" onerror="handleImgError(this)">
+            <img src="{{ $hotel ? $hotel->image_url : $booking->destination->image_url }}" alt="{{ $hotel ? $hotel->name : $booking->destination->name }}" onerror="{{ $hotel ? 'handleHotelImgError(this)' : 'handleImgError(this)' }}">
             <div class="ticket-hero-overlay"></div>
             <div class="ticket-hero-info">
                 @if($hotel)
