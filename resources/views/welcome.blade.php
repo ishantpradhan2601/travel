@@ -7,6 +7,112 @@
     <meta name="description" content="Find your perfect destination based on your budget, travel dates, and preferred activities. AI-powered personalized travel recommendations.">
     <link rel="stylesheet" href="{{ asset('css/app-style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+
+        function handleImgError(img) {
+            img.onerror = null;
+            const airplanes = [
+                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1473862170180-84427c485ade?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1483450388369-9ed95738483c?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1524850301259-7729d41d11d9?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
+            const btnHtml = `
+                <button id="themeToggleBtn" aria-label="Toggle theme" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; transition: all 0.2s; font-family: inherit; outline: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+                    <i class="fa-solid ${iconClass}"></i>
+                </button>
+            `;
+            let injected = false;
+            const navInner = document.querySelector('.navbar-inner');
+            if (navInner) {
+                const toggleDiv = document.createElement('div');
+                toggleDiv.className = 'theme-toggle-item';
+                toggleDiv.innerHTML = btnHtml;
+                navInner.appendChild(toggleDiv);
+                injected = true;
+            }
+            if (!injected) {
+                const floatingDiv = document.createElement('div');
+                floatingDiv.style.position = 'fixed';
+                floatingDiv.style.bottom = '2rem';
+                floatingDiv.style.right = '2rem';
+                floatingDiv.style.zIndex = '9999';
+                floatingDiv.style.background = 'var(--white)';
+                floatingDiv.style.border = '1px solid var(--border)';
+                floatingDiv.style.boxShadow = 'var(--shadow-lg)';
+                floatingDiv.style.borderRadius = '50%';
+                floatingDiv.style.width = '48px';
+                floatingDiv.style.height = '48px';
+                floatingDiv.style.display = 'flex';
+                floatingDiv.style.alignItems = 'center';
+                floatingDiv.style.justifyContent = 'center';
+                floatingDiv.innerHTML = btnHtml;
+                document.body.appendChild(floatingDiv);
+            }
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDark ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    const icon = btn.querySelector('i');
+                    if (newTheme === 'dark') {
+                        icon.className = 'fa-solid fa-sun';
+                    } else {
+                        icon.className = 'fa-solid fa-moon';
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        .sponsored-banner-section {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(26,115,232,0.02) 0%, rgba(26,115,232,0.06) 100%);
+            border-top: 1px solid rgba(26,115,232,0.08);
+            border-bottom: 1px solid rgba(26,115,232,0.08);
+            padding: 3.5rem 0 4rem 0;
+            margin: 3.5rem 0 1rem 0;
+            box-sizing: border-box;
+        }
+        .sponsored-inner {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            box-sizing: border-box;
+        }
+        @media (min-width: 576px) {
+            .sponsored-inner {
+                padding: 0 2.5rem;
+            }
+        }
+        @media (min-width: 992px) {
+            .sponsored-inner {
+                padding: 0 4.5rem;
+            }
+        }
+        @media (min-width: 1400px) {
+            .sponsored-inner {
+                padding: 0 6rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -20,6 +126,7 @@
         <ul class="nav-links">
             <li><a href="#how-it-works">How It Works</a></li>
             <li><a href="#search">Find Destinations</a></li>
+            <li><a href="{{ route('hotels.index') }}">Hotels & Airbnbs</a></li>
             <li><a href="{{ route('bookings.index') }}">My Bookings</a></li>
             @auth
                 <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
@@ -86,6 +193,9 @@
             </button>
             <button class="search-tab" onclick="switchTab('flight-search', this)">
                 <i class="fa-solid fa-plane"></i> Flight Search
+            </button>
+            <button class="search-tab" onclick="switchTab('hotel-search', this)">
+                <i class="fa-solid fa-hotel"></i> Stays Search
             </button>
         </div>
 
@@ -250,56 +360,118 @@
                 </div>
             </div>
         </form>
-    </div>
 
-    <!-- Sponsored Advertisements -->
-    @if(isset($advertisements) && $advertisements->count() > 0)
-        <div class="section-header fade-in-3" style="margin-top: 3.5rem;">
-            <h2 class="section-title">Sponsored <span>Partner Ads</span></h2>
-            <span style="font-size: 0.72rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #e8f0fe; padding: 0.25rem 0.65rem; border-radius: 4px; border: 1.5px solid rgba(26,115,232,0.15); display: inline-flex; align-items: center; gap: 0.35rem;"><i class="fa-solid fa-rectangle-ad" style="font-size: 0.85rem"></i> Sponsored Ad</span>
-        </div>
-        
-        <div class="results-grid fade-in-3" style="margin-top: 1rem; margin-bottom: 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem;">
-            @foreach($advertisements as $ad)
-                <div class="destination-card" style="position: relative; border-radius: 10px;">
-                    <span style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(28,28,46,0.85); color: white; backdrop-filter: blur(4px); font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); z-index: 5; text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-star" style="color: #FFD166; margin-right: 0.15rem"></i> Sponsored</span>
-                    
-                    <div class="card-image-wrap">
-                        <img src="{{ $ad->image_url }}" alt="{{ $ad->name }}" class="card-image" style="height: 125px;" loading="lazy">
-                        <span class="card-badge" style="background: var(--secondary); font-size: 0.6rem; padding: 0.2rem 0.5rem; top: 0.5rem; left: 0.5rem;">✦ Exclusive Offer</span>
+        <!-- Accommodations Search Form -->
+        <form action="{{ route('hotels.index') }}" method="GET" id="hotelSearchForm" style="display: none;">
+            <div class="form-grid" style="margin-top: 1.5rem;">
+                <!-- Location -->
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="hotel_location">Where are you staying?</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <input type="text" id="hotel_location" name="location" placeholder="e.g. Bali, Paris, Tokyo...">
                     </div>
+                    <small class="input-hint">City, region, or property name</small>
+                </div>
 
-                    <div class="card-content" style="padding: 0.85rem;">
-                        <div class="card-location" style="font-size: 0.7rem; margin-bottom: 0.2rem;">
-                            <i class="fa-solid fa-location-dot" style="color:#1A73E8;font-size:0.65rem;"></i>
-                            {{ $ad->location }}
-                        </div>
-                        <div class="card-name" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem;">{{ $ad->name }}</div>
-                        <div class="card-desc" style="font-size: 0.76rem; line-height: 1.45; margin-bottom: 0.6rem; height: 35px; -webkit-line-clamp: 2;">{{ $ad->description }}</div>
-
-                        <!-- Budget bar -->
-                        <div class="card-budget-bar" style="margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 6px; padding: 0.35rem 0.55rem;">
-                            <div class="card-budget-label" style="font-size: 0.68rem; color: var(--text-muted);">Est. Cost</div>
-                            <div class="card-budget-range" style="color: var(--secondary); font-weight: 800; font-size: 0.78rem;">
-                                ${{ number_format($ad->min_budget) }} - ${{ number_format($ad->max_budget) }}
-                            </div>
-                        </div>
-
-                        <div class="card-footer" style="padding-top: 0.65rem; border-top: 1px solid var(--border);">
-                            <div class="card-price">
-                                <span class="card-price-label" style="font-size: 0.65rem;">From</span>
-                                <span class="card-price-amount" style="color: var(--secondary); font-size: 1.05rem; font-weight: 800;">${{ number_format($ad->min_budget) }}</span>
-                            </div>
-                            <a href="#search" onclick="document.getElementById('departure').value = 'New York (JFK)'; document.getElementById('destination').value = '{{ $ad->name }}'; switchTab('flight-search', document.querySelectorAll('.search-tab')[1]);" class="btn-book" style="background: var(--secondary); text-decoration: none; padding: 0.4rem 0.9rem; font-size: 0.76rem; border-radius: 100px; display: inline-flex; align-items: center; gap: 0.25rem;">
-                                Fly Now <i class="fa-solid fa-plane"></i>
-                            </a>
-                        </div>
+                <!-- Stay Type -->
+                <div class="form-group">
+                    <label for="hotel_type">Stay Type</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-house-chimney"></i>
+                        <select id="hotel_type" name="type" style="width: 100%; padding: 0.75rem 0.85rem 0.75rem 2.4rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: inherit; color: var(--text); background: var(--bg); outline: none;">
+                            <option value="all">All Accommodations</option>
+                            <option value="hotel">Hotels Only</option>
+                            <option value="airbnb">Airbnb Stays</option>
+                        </select>
                     </div>
                 </div>
-            @endforeach
+
+                <!-- Max Price -->
+                <div class="form-group">
+                    <label for="price_max">Max Price Per Night ($)</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <input type="number" id="price_max" name="price_max" placeholder="e.g. 500">
+                    </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="form-group">
+                    <label for="hotel_rating">Min Rating</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-star" style="color:#d97706;"></i>
+                        <select id="hotel_rating" name="rating" style="width: 100%; padding: 0.75rem 0.85rem 0.75rem 2.4rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: inherit; color: var(--text); background: var(--bg); outline: none;">
+                            <option value="">Any Rating</option>
+                            <option value="4.8">★ 4.8 & Above</option>
+                            <option value="4.5">★ 4.5 & Above</option>
+                            <option value="4.0">★ 4.0 & Above</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="form-group" style="grid-column: span 1; justify-content: flex-end;">
+                    <button type="submit" class="btn-search" id="hotelSearchBtn" style="margin-top: 0; padding: 0.75rem;">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search Stays
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div> <!-- Close search-card-wrap -->
+
+<!-- Sponsored Advertisements (Full Screen Width) -->
+@if(isset($advertisements) && $advertisements->count() > 0)
+    <div class="sponsored-banner-section">
+        <div class="sponsored-inner">
+            <div class="section-header fade-in-3" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 class="section-title">Sponsored <span>Partner Ads</span></h2>
+                <span style="font-size: 0.72rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #e8f0fe; padding: 0.25rem 0.65rem; border-radius: 4px; border: 1.5px solid rgba(26,115,232,0.15); display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 2px 6px rgba(26,115,232,0.05);"><i class="fa-solid fa-rectangle-ad" style="font-size: 0.85rem"></i> Sponsored Spotlight</span>
+            </div>
+            
+            <div class="results-grid fade-in-3" style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.25rem;">
+                @foreach($advertisements as $ad)
+                    <div class="destination-card" style="position: relative; border-radius: 10px; background: var(--white); box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden;">
+                        <span style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(28,28,46,0.85); color: white; backdrop-filter: blur(4px); font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); z-index: 5; text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-star" style="color: #FFD166; margin-right: 0.15rem"></i> Sponsored</span>
+                        
+                        <div class="card-image-wrap">
+                            <img src="{{ $ad->image_url }}" alt="{{ $ad->name }}" class="card-image" style="height: 125px; width: 100%; object-fit: cover;" loading="lazy" onerror="handleImgError(this)">
+                            <span class="card-badge" style="background: var(--secondary); font-size: 0.6rem; padding: 0.2rem 0.5rem; top: 0.5rem; left: 0.5rem;">✦ Exclusive Offer</span>
+                        </div>
+
+                        <div class="card-content" style="padding: 0.85rem;">
+                            <div class="card-location" style="font-size: 0.7rem; margin-bottom: 0.2rem;">
+                                <i class="fa-solid fa-location-dot" style="color:#1A73E8;font-size:0.65rem;"></i>
+                                {{ $ad->location }}
+                            </div>
+                            <div class="card-name" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem;">{{ $ad->name }}</div>
+                            <div class="card-desc" style="font-size: 0.76rem; line-height: 1.45; margin-bottom: 0.6rem; height: 35px; -webkit-line-clamp: 2;">{{ $ad->description }}</div>
+
+                            <!-- Budget bar -->
+                            <div class="card-budget-bar" style="margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: var(--bg); border-radius: 6px; padding: 0.35rem 0.55rem;">
+                                <div class="card-budget-label" style="font-size: 0.68rem; color: var(--text-muted);">Est. Cost</div>
+                                <div class="card-budget-range" style="color: var(--secondary); font-weight: 800; font-size: 0.78rem;">
+                                    ${{ number_format($ad->min_budget) }} - ${{ number_format($ad->max_budget) }}
+                                </div>
+                            </div>
+
+                            <div class="card-footer" style="padding-top: 0.65rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                                <div class="card-price" style="display: flex; flex-direction: column;">
+                                    <span class="card-price-label" style="font-size: 0.65rem; color: var(--text-muted);">From</span>
+                                    <span class="card-price-amount" style="color: var(--secondary); font-size: 1.05rem; font-weight: 800;">${{ number_format($ad->min_budget) }}</span>
+                                </div>
+                                <a href="#search" onclick="document.getElementById('departure').value = 'New York (JFK)'; document.getElementById('destination').value = '{{ $ad->name }}'; switchTab('flight-search', document.querySelectorAll('.search-tab')[1]);" class="btn-book" style="background: var(--secondary); text-decoration: none; padding: 0.4rem 0.9rem; font-size: 0.76rem; border-radius: 100px; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                    Fly Now <i class="fa-solid fa-plane"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-    @endif
-</div>
+    </div>
+@endif
 
 <!-- PAGE CONTENT -->
 <div class="page-content">
@@ -360,6 +532,69 @@
         </div>
     </div>
 
+    <!-- STAY RECOMMENDATIONS -->
+    @if(isset($recommendedHotels) && !$recommendedHotels->isEmpty())
+        <div style="margin-top: 4.5rem; margin-bottom: 2rem;" class="fade-in-3">
+            <div class="section-header" style="margin-bottom: 1.5rem;">
+                <div>
+                    <h2 class="section-title" style="font-size: 1.5rem; font-weight: 800; color: var(--text);">
+                        Recommended <span style="color: var(--primary);">Stays for You</span>
+                    </h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
+                        <i class="fa-solid fa-sparkles" style="color: #f59e0b;"></i> {{ $recommendationReason }}
+                    </p>
+                </div>
+                <a href="{{ route('hotels.index') }}" class="section-link" style="font-size:0.85rem;">
+                    Explore All Stays <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="results-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.5rem;">
+                @foreach($recommendedHotels as $hotel)
+                    <div class="destination-card" style="position: relative; border-radius: var(--radius); background: var(--white); box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.25s ease;">
+                        <div>
+                            <!-- Card Image -->
+                            <div class="card-image-wrap" style="position: relative; overflow: hidden;">
+                                <img src="{{ $hotel->image_url }}" alt="{{ $hotel->name }}" class="card-image" style="height: 170px; width: 100%; object-fit: cover;" onerror="handleImgError(this)">
+                                <span class="card-badge" style="background: {{ $hotel->type == 'hotel' ? 'var(--primary)' : 'var(--accent)' }}; font-size: 0.65rem; padding: 0.2rem 0.55rem; top: 0.75rem; left: 0.75rem; border-radius:100px; text-transform:uppercase; font-weight:700; position:absolute; color:white; pointer-events:none;">
+                                    ✦ {{ $hotel->type == 'hotel' ? 'Hotel' : 'Airbnb' }}
+                                </span>
+                            </div>
+
+                            <!-- Card Content -->
+                            <div class="card-content" style="padding: 1.25rem;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                                    <div class="card-location" style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem; margin-bottom: 0;">
+                                        <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 0.7rem;"></i>
+                                        {{ $hotel->location }}
+                                    </div>
+                                    <span class="rating-badge" style="background: #fef3c7; color: #d97706; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.15rem;">
+                                        <i class="fa-solid fa-star" style="font-size:0.7rem;"></i> {{ number_format($hotel->rating, 2) }}
+                                    </span>
+                                </div>
+                                <div class="card-name" style="font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem;">{{ $hotel->name }}</div>
+                                <div class="card-desc" style="font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); margin-bottom: 0.75rem; height: 55px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                    {{ $hotel->description }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="card-footer" style="padding: 1rem 1.25rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; border-radius: 0 0 var(--radius) var(--radius);">
+                            <div>
+                                <span class="card-price-label" style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight:600;">From</span>
+                                <div style="color: var(--primary); font-size: 1.15rem; font-weight: 850;">${{ number_format($hotel->price_per_night) }}<span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">/nt</span></div>
+                            </div>
+                            <a href="{{ route('hotels.show', $hotel->id) }}" class="btn-book" style="text-decoration: none; padding: 0.45rem 1rem; font-size: 0.8rem; border-radius: 100px; display:inline-block; font-weight:600;">
+                                Book Stay <i class="fa-solid fa-arrow-right" style="font-size: 0.7rem; margin-left: 0.15rem;"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
 </div>
 
 <!-- FOOTER -->
@@ -388,12 +623,16 @@
         document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
 
+        document.getElementById('searchForm').style.display = 'none';
+        document.getElementById('flightSearchForm').style.display = 'none';
+        document.getElementById('hotelSearchForm').style.display = 'none';
+
         if (tabId === 'dest-finder') {
             document.getElementById('searchForm').style.display = 'block';
-            document.getElementById('flightSearchForm').style.display = 'none';
-        } else {
-            document.getElementById('searchForm').style.display = 'none';
+        } else if (tabId === 'flight-search') {
             document.getElementById('flightSearchForm').style.display = 'block';
+        } else {
+            document.getElementById('hotelSearchForm').style.display = 'block';
         }
     }
 
@@ -406,6 +645,12 @@
     document.getElementById('flightSearchForm').addEventListener('submit', function () {
         const btn = document.getElementById('flightSearchBtn');
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating Flights…';
+        btn.disabled = true;
+    });
+
+    document.getElementById('hotelSearchForm').addEventListener('submit', function () {
+        const btn = document.getElementById('hotelSearchBtn');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Finding Stays…';
         btn.disabled = true;
     });
 

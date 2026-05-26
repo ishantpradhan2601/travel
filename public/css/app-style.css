@@ -17,6 +17,51 @@
     --radius-sm: 8px;
 }
 
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --white: #1e293b;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --shadow: 0 4px 20px rgba(0,0,0,0.35);
+    --shadow-lg: 0 10px 45px rgba(0,0,0,0.55);
+    --primary-light: rgba(255,90,48,0.18);
+}
+
+[data-theme="dark"] .how-card,
+[data-theme="dark"] .search-card,
+[data-theme="dark"] .flight-sort-bar,
+[data-theme="dark"] .flight-card,
+[data-theme="dark"] .bookings-table-card,
+[data-theme="dark"] .ticket-board,
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .results-bar,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .card-wishlist {
+    background: var(--white) !important;
+}
+
+[data-theme="dark"] .auth-page {
+    background: var(--bg) !important;
+}
+
+[data-theme="dark"] .input-icon-wrap input:focus {
+    background: #1e293b !important;
+    color: var(--text) !important;
+}
+
+[data-theme="dark"] .activity-chip span {
+    background: var(--white) !important;
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background: rgba(26,115,232,0.1) !important;
+}
+
+[data-theme="dark"] .bookings-table tr:hover td {
+    background: #1e293b !important;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -507,7 +552,7 @@ body {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
 }
-.empty-state i { font-size: 4rem; color: var(--border); margin-bottom: 1.5rem; display: block; }
+.empty-state > i { font-size: 4rem; color: var(--border); margin-bottom: 1.5rem; display: block; }
 .empty-state h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
 .empty-state p { color: var(--text-muted); margin-bottom: 1.5rem; }
 .btn-outline {

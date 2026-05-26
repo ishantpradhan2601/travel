@@ -197,6 +197,79 @@
             .ticket-board { box-shadow: none; border: none; }
         }
     </style>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+
+        function handleImgError(img) {
+            img.onerror = null;
+            const airplanes = [
+                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1473862170180-84427c485ade?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1483450388369-9ed95738483c?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1524850301259-7729d41d11d9?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
+            const btnHtml = `
+                <button id="themeToggleBtn" aria-label="Toggle theme" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; transition: all 0.2s; font-family: inherit; outline: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+                    <i class="fa-solid ${iconClass}"></i>
+                </button>
+            `;
+            let injected = false;
+            const navInner = document.querySelector('.navbar-inner');
+            if (navInner) {
+                const toggleDiv = document.createElement('div');
+                toggleDiv.className = 'theme-toggle-item';
+                toggleDiv.innerHTML = btnHtml;
+                navInner.appendChild(toggleDiv);
+                injected = true;
+            }
+            if (!injected) {
+                const floatingDiv = document.createElement('div');
+                floatingDiv.style.position = 'fixed';
+                floatingDiv.style.bottom = '2rem';
+                floatingDiv.style.right = '2rem';
+                floatingDiv.style.zIndex = '9999';
+                floatingDiv.style.background = 'var(--white)';
+                floatingDiv.style.border = '1px solid var(--border)';
+                floatingDiv.style.boxShadow = 'var(--shadow-lg)';
+                floatingDiv.style.borderRadius = '50%';
+                floatingDiv.style.width = '48px';
+                floatingDiv.style.height = '48px';
+                floatingDiv.style.display = 'flex';
+                floatingDiv.style.alignItems = 'center';
+                floatingDiv.style.justifyContent = 'center';
+                floatingDiv.innerHTML = btnHtml;
+                document.body.appendChild(floatingDiv);
+            }
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDark ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    const icon = btn.querySelector('i');
+                    if (newTheme === 'dark') {
+                        icon.className = 'fa-solid fa-sun';
+                    } else {
+                        icon.className = 'fa-solid fa-moon';
+                    }
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -229,6 +302,7 @@
 
 @php
     $flight = session('flight_' . $booking->booking_reference);
+    $hotel = $booking->hotel;
 @endphp
 
 <!-- MAIN CONTENT -->
@@ -243,9 +317,15 @@
 
     <div class="ticket-board fade-in">
         <!-- Header -->
-        <div class="ticket-header" style="{{ $flight ? 'background: linear-gradient(135deg, var(--secondary), #56a8f5);' : '' }}">
+        <div class="ticket-header" style="{{ $hotel ? 'background: linear-gradient(135deg, var(--primary), #ff8a65);' : ($flight ? 'background: linear-gradient(135deg, var(--secondary), #56a8f5);' : '') }}">
             <div class="ticket-header-logo">
-                <i class="fa-solid fa-plane"></i> {{ $flight ? 'FLIGHT PASS / BOARDING' : 'BOARDING PASS / RES' }}
+                @if($hotel)
+                    <i class="fa-solid {{ $hotel->type == 'hotel' ? 'fa-hotel' : 'fa-house-chimney' }}"></i> {{ strtoupper($hotel->type) }} RESERVATION / STAY
+                @elseif($flight)
+                    <i class="fa-solid fa-plane"></i> FLIGHT PASS / BOARDING
+                @else
+                    <i class="fa-solid fa-plane"></i> BOARDING PASS / RES
+                @endif
             </div>
             <div class="ticket-header-ref">
                 REF: {{ $booking->booking_reference }}
@@ -254,10 +334,13 @@
 
         <!-- Banner Visual -->
         <div class="ticket-hero">
-            <img src="{{ $booking->destination->image_url }}" alt="{{ $booking->destination->name }}">
+            <img src="{{ $hotel ? $hotel->image_url : $booking->destination->image_url }}" alt="{{ $hotel ? $hotel->name : $booking->destination->name }}" onerror="handleImgError(this)">
             <div class="ticket-hero-overlay"></div>
             <div class="ticket-hero-info">
-                @if($flight)
+                @if($hotel)
+                    <h2>{{ $hotel->name }}</h2>
+                    <p><i class="fa-solid fa-location-dot"></i> {{ $hotel->location }}</p>
+                @elseif($flight)
                     <h2>{{ $flight['departure_code'] }} <i class="fa-solid fa-arrow-right-long" style="font-size:1.1rem;vertical-align:middle;margin:0 0.5rem"></i> {{ $flight['destination_code'] }}</h2>
                     <p><i class="fa-solid fa-plane-departure"></i> {{ $flight['airline'] }} · Flight {{ $flight['flight_number'] }}</p>
                 @else
@@ -271,7 +354,7 @@
         <div class="ticket-body">
             <div class="ticket-info-grid">
                 <div class="ticket-info-group">
-                    <label>Passenger Name</label>
+                    <label>{{ $hotel ? 'Lead Guest Name' : 'Passenger Name' }}</label>
                     <span>{{ $booking->customer_name }}</span>
                 </div>
                 <div class="ticket-info-group">
@@ -284,16 +367,16 @@
                 </div>
 
                 <div class="ticket-info-group">
-                    <label>Departure Date</label>
+                    <label>{{ $hotel ? 'Check-In Date' : 'Departure Date' }}</label>
                     <span>{{ date('d M, Y', strtotime($booking->start_date)) }}</span>
                 </div>
                 <div class="ticket-info-group">
-                    <label>{{ $flight ? 'Route details' : 'Return Date' }}</label>
-                    <span>{{ $flight ? $flight['departure_city'] . ' to ' . $flight['destination_city'] : date('d M, Y', strtotime($booking->end_date)) }}</span>
+                    <label>{{ $hotel ? 'Check-Out Date' : ($flight ? 'Route details' : 'Return Date') }}</label>
+                    <span>{{ $hotel ? date('d M, Y', strtotime($booking->end_date)) : ($flight ? $flight['departure_city'] . ' to ' . $flight['destination_city'] : date('d M, Y', strtotime($booking->end_date))) }}</span>
                 </div>
                 <div class="ticket-info-group">
-                    <label>Total Travelers</label>
-                    <span>{{ $booking->num_travelers }} {{ Str::plural('Person', $booking->num_travelers) }}</span>
+                    <label>{{ $hotel ? 'Total Guests' : 'Total Travelers' }}</label>
+                    <span>{{ $booking->num_travelers }} {{ Str::plural($hotel ? 'Guest' : 'Person', $booking->num_travelers) }}</span>
                 </div>
             </div>
 
@@ -303,11 +386,16 @@
             <!-- Pricing Box -->
             <div class="ticket-price-box">
                 <div class="ticket-price-info">
-                    <label>Calculated Dynamic Cost</label>
+                    <label>{{ $hotel ? 'stay reservation cost' : 'Calculated Dynamic Cost' }}</label>
                     <span>${{ number_format($booking->total_price) }}</span>
                 </div>
                 <div style="font-size:0.8rem;color:var(--text-muted);text-align:right;">
-                    @if($flight)
+                    @if($hotel)
+                        @php
+                            $nights = max(1, Carbon\Carbon::parse($booking->end_date)->diffInDays(Carbon\Carbon::parse($booking->start_date)));
+                        @endphp
+                        Stay rate: ${{ number_format($hotel->price_per_night) }} x {{ $nights }} night{{ $nights != 1 ? 's' : '' }}
+                    @elseif($flight)
                         Base flight rate: ${{ number_format($flight['price']) }} x {{ $booking->num_travelers }} traveler(s)
                     @else
                         Base rate: ${{ number_format($booking->destination->min_budget) }} x {{ $booking->num_travelers }} traveler(s)

@@ -6,6 +6,7 @@
     <title>Flight Search Results – TravelScape</title>
     <link rel="stylesheet" href="{{ asset('css/app-style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         .flights-grid {
             display: flex;
@@ -193,6 +194,79 @@
             color: var(--primary);
         }
     </style>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+
+        function handleImgError(img) {
+            img.onerror = null;
+            const airplanes = [
+                'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1473862170180-84427c485ade?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1483450388369-9ed95738483c?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1524850301259-7729d41d11d9?auto=format&fit=crop&w=800&q=80'
+            ];
+            img.src = airplanes[Math.floor(Math.random() * airplanes.length)];
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const iconClass = currentTheme === 'dark' ? 'fa-sun' : 'fa-moon';
+            const btnHtml = `
+                <button id="themeToggleBtn" aria-label="Toggle theme" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; transition: all 0.2s; font-family: inherit; outline: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">
+                    <i class="fa-solid ${iconClass}"></i>
+                </button>
+            `;
+            let injected = false;
+            const navInner = document.querySelector('.navbar-inner');
+            if (navInner) {
+                const toggleDiv = document.createElement('div');
+                toggleDiv.className = 'theme-toggle-item';
+                toggleDiv.innerHTML = btnHtml;
+                navInner.appendChild(toggleDiv);
+                injected = true;
+            }
+            if (!injected) {
+                const floatingDiv = document.createElement('div');
+                floatingDiv.style.position = 'fixed';
+                floatingDiv.style.bottom = '2rem';
+                floatingDiv.style.right = '2rem';
+                floatingDiv.style.zIndex = '9999';
+                floatingDiv.style.background = 'var(--white)';
+                floatingDiv.style.border = '1px solid var(--border)';
+                floatingDiv.style.boxShadow = 'var(--shadow-lg)';
+                floatingDiv.style.borderRadius = '50%';
+                floatingDiv.style.width = '48px';
+                floatingDiv.style.height = '48px';
+                floatingDiv.style.display = 'flex';
+                floatingDiv.style.alignItems = 'center';
+                floatingDiv.style.justifyContent = 'center';
+                floatingDiv.innerHTML = btnHtml;
+                document.body.appendChild(floatingDiv);
+            }
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDark ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    const icon = btn.querySelector('i');
+                    if (newTheme === 'dark') {
+                        icon.className = 'fa-solid fa-sun';
+                    } else {
+                        icon.className = 'fa-solid fa-moon';
+                    }
+                });
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -402,7 +476,7 @@
             
             <!-- Right: Dynamic Boarding Preview Card -->
             <div class="drawer-preview-card">
-                <img id="drawerDestImg" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" alt="Destination Image">
+                <img id="drawerDestImg" src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=800&q=80" alt="Destination Image" onerror="handleImgError(this)">
                 <div class="preview-card-info">
                     <span class="preview-badge"><i class="fa-solid fa-plane"></i> Dynamic Boarding Preview</span>
                     <h4 id="previewAirline">Airline</h4>
@@ -477,10 +551,45 @@
         cards.forEach(c => grid.appendChild(c));
     }
 
-    document.getElementById('flightCheckoutForm').addEventListener('submit', function () {
-        const btn = this.querySelector('button[type="submit"]');
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Reserving seats...';
-        btn.disabled = true;
+    document.getElementById('flightCheckoutForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const form = this;
+        const name = form.querySelector('#customer_name').value;
+        const email = form.querySelector('#customer_email').value;
+        const totalPrice = basePricePerTraveler * numTravelers;
+
+        const options = {
+            "key": "rzp_test_trvScapeKey",
+            "amount": totalPrice * 100 * 80, // rough USD -> INR paise conversion
+            "currency": "INR",
+            "name": "TravelScape Flights",
+            "description": "Flight Ticket Booking - " + document.getElementById('previewAirline').innerText + " (" + document.getElementById('previewFlightNum').innerText + ")",
+            "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=120&q=80",
+            "handler": function (response) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'razorpay_payment_id';
+                hiddenInput.value = response.razorpay_payment_id;
+                form.appendChild(hiddenInput);
+
+                const btn = form.querySelector('button[type="submit"]');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Booking seats...';
+                btn.disabled = true;
+
+                form.submit();
+            },
+            "prefill": {
+                "name": name,
+                "email": email,
+                "contact": "9999999999"
+            },
+            "theme": {
+                "color": "#FF5A30"
+            }
+        };
+        const rzp1 = new Razorpay(options);
+        rzp1.open();
     });
 </script>
 

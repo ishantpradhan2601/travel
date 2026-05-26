@@ -280,5 +280,261 @@ class DatabaseSeeder extends Seeder
                 $dest->activities()->attach($activities[$actName]->id);
             }
         }
+
+        // Seed Hotels and Airbnbs
+        $hotels = [
+            'Bali' => [
+                [
+                    'name' => 'Ubud Hanging Gardens Resort',
+                    'type' => 'hotel',
+                    'location' => 'Ubud, Bali',
+                    'description' => 'Luxurious resort featuring a stunning split-level infinity pool suspended over the lush rainforest valley. Rejuvenate at the world-class spa and savor organic local cuisine.',
+                    'price_per_night' => 380,
+                    'rating' => 4.92,
+                    'rooms_available' => 6,
+                    'amenities' => ['Wifi', 'Pool', 'Spa', 'Restaurant', 'Air Conditioning', 'Free Parking', 'Fitness Center'],
+                    'image_url' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => -8.506854,
+                    'longitude' => 115.262482
+                ],
+                [
+                    'name' => 'Eco-Bamboo Treehouse in Ubud',
+                    'type' => 'airbnb',
+                    'location' => 'Ubud, Bali',
+                    'description' => 'Stunning eco-villa constructed entirely from sustainably sourced giant bamboo, nestled deep in Balinese rice paddies. Wake up to the sounds of flowing river waters and birds chirping.',
+                    'price_per_night' => 95,
+                    'rating' => 4.88,
+                    'rooms_available' => 2,
+                    'amenities' => ['Wifi', 'Kitchen', 'Pool', 'Free Parking', 'Pet Friendly'],
+                    'image_url' => 'https://images.unsplash.com/photo-1508333706533-1ab43ecb1606?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => -8.514681,
+                    'longitude' => 115.275812
+                ]
+            ],
+            'Swiss Alps' => [
+                [
+                    'name' => 'The Alpine Palace & Spa',
+                    'type' => 'hotel',
+                    'location' => 'Zermatt, Switzerland',
+                    'description' => 'Five-star historic hotel featuring breathtaking, unobstructed views of the iconic Matterhorn peak. Enjoy ski-in/ski-out access, a heated pool, and cozy Michelin-starred alpine dining.',
+                    'price_per_night' => 480,
+                    'rating' => 4.95,
+                    'rooms_available' => 4,
+                    'amenities' => ['Wifi', 'Pool', 'Spa', 'Restaurant', 'Ski Access', 'Bar', 'Gym', 'Free Breakfast'],
+                    'image_url' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 46.020714,
+                    'longitude' => 7.749117
+                ],
+                [
+                    'name' => 'Cozy Luxury Chalet with Hot Tub',
+                    'type' => 'airbnb',
+                    'location' => 'Grindelwald, Switzerland',
+                    'description' => 'Charming modern Swiss chalet offering rustic comfort, a roaring stone fireplace, and a private outdoor hot tub facing the Eiger mountain wall. Perfect for summer hiking and winter ski trips.',
+                    'price_per_night' => 210,
+                    'rating' => 4.87,
+                    'rooms_available' => 1,
+                    'amenities' => ['Wifi', 'Kitchen', 'Hot Tub', 'Fireplace', 'Washing Machine', 'Free Parking'],
+                    'image_url' => 'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 46.624231,
+                    'longitude' => 8.041394
+                ]
+            ],
+            'Paris' => [
+                [
+                    'name' => 'Hotel Plaza Athénée Paris',
+                    'type' => 'hotel',
+                    'location' => 'Avenue Montaigne, Paris',
+                    'description' => 'Famed luxury palace hotel featuring classic French decor, signature red awnings, a secluded inner garden courtyard, and Michelin dining by the finest chefs in France.',
+                    'price_per_night' => 820,
+                    'rating' => 4.94,
+                    'rooms_available' => 5,
+                    'amenities' => ['Wifi', 'Air Conditioning', 'Spa', 'Restaurant', 'Bar', 'Gym', 'Room Service'],
+                    'image_url' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 48.865912,
+                    'longitude' => 2.302581
+                ],
+                [
+                    'name' => 'Charming Artist Loft in Montmartre',
+                    'type' => 'airbnb',
+                    'location' => 'Montmartre, Paris',
+                    'description' => 'Light-filled artistic apartment at the base of the Sacré-Cœur Basilica. Features exposed wooden beams, clawfoot tub, local art collection, and double doors opening onto a scenic cobbled lane.',
+                    'price_per_night' => 135,
+                    'rating' => 4.79,
+                    'rooms_available' => 3,
+                    'amenities' => ['Wifi', 'Kitchen', 'Washing Machine', 'Air Conditioning', 'Coffee Maker'],
+                    'image_url' => 'https://images.unsplash.com/photo-1499856133078-5d9cd4e05b67?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 48.886512,
+                    'longitude' => 2.343110
+                ]
+            ],
+            'Kyoto' => [
+                [
+                    'name' => 'Gion restored 100-Year-Old Machiya',
+                    'type' => 'airbnb',
+                    'location' => 'Gion, Kyoto',
+                    'description' => 'Beautifully restored traditional wooden townhouse offering authentic tatami rooms, sliding shoji screens, a stone pocket garden, and absolute peace in the heart of Gion district.',
+                    'price_per_night' => 170,
+                    'rating' => 4.91,
+                    'rooms_available' => 2,
+                    'amenities' => ['Wifi', 'Kitchen', 'Air Conditioning', 'Washing Machine', 'Garden'],
+                    'image_url' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 35.003651,
+                    'longitude' => 135.778219
+                ],
+                [
+                    'name' => 'Kyoto Riverview Luxury Ryokan',
+                    'type' => 'hotel',
+                    'location' => 'Higashiyama, Kyoto',
+                    'description' => 'Exquisite, authentic Japanese ryokan offering luxury tatami suites, multi-course seasonal Kaiseki dining, and healing private hinoki cypress wood hot baths overlooking Kamogawa River.',
+                    'price_per_night' => 420,
+                    'rating' => 4.89,
+                    'rooms_available' => 5,
+                    'amenities' => ['Wifi', 'Spa', 'Restaurant', 'Air Conditioning', 'Free Breakfast', 'Hot Tub'],
+                    'image_url' => 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 34.996152,
+                    'longitude' => 135.772581
+                ]
+            ],
+            'Tokyo' => [
+                [
+                    'name' => 'Park Hyatt Tokyo',
+                    'type' => 'hotel',
+                    'location' => 'Shinjuku, Tokyo',
+                    'description' => 'Iconic soaring luxury hotel offering 360-degree panoramic Tokyo skyline views, a 47th-floor glass-enclosed indoor pool, a world-class jazz bar, and exceptional luxury service.',
+                    'price_per_night' => 610,
+                    'rating' => 4.96,
+                    'rooms_available' => 8,
+                    'amenities' => ['Wifi', 'Pool', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Air Conditioning', 'Fitness Center'],
+                    'image_url' => 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 35.685352,
+                    'longitude' => 139.691235
+                ],
+                [
+                    'name' => 'Modern Minimalist Studio in Shibuya',
+                    'type' => 'airbnb',
+                    'location' => 'Shibuya, Tokyo',
+                    'description' => 'Sleek, award-winning studio apartment situated in a quiet, design-forward Shibuya street. Features high-speed pocket wifi and absolute proximity to Tokyo’s top dining spots.',
+                    'price_per_night' => 105,
+                    'rating' => 4.76,
+                    'rooms_available' => 3,
+                    'amenities' => ['Wifi', 'Kitchen', 'Air Conditioning', 'Pocket Wifi', 'Washing Machine'],
+                    'image_url' => 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 35.661781,
+                    'longitude' => 139.704021
+                ]
+            ],
+            'New York' => [
+                [
+                    'name' => 'The Plaza Hotel Fifth Avenue',
+                    'type' => 'hotel',
+                    'location' => 'Midtown East, New York',
+                    'description' => 'Fabled New York City luxury landmark overlooking Central Park. Offers regal gold-plated fixtures, classic butler service, the legendary Palm Court, and ultimate Manhattan grandeur.',
+                    'price_per_night' => 680,
+                    'rating' => 4.90,
+                    'rooms_available' => 7,
+                    'amenities' => ['Wifi', 'Air Conditioning', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Room Service'],
+                    'image_url' => 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 40.764512,
+                    'longitude' => -73.974421
+                ],
+                [
+                    'name' => 'SOHO Luxury Exposed Brick Loft',
+                    'type' => 'airbnb',
+                    'location' => 'Soho, New York',
+                    'description' => 'Classic, sprawling Soho artist loft in a cast-iron building. Features 14-foot ceilings, huge factory windows, a chef\'s kitchen, an expansive living area, and elegant modern furnishings.',
+                    'price_per_night' => 240,
+                    'rating' => 4.84,
+                    'rooms_available' => 2,
+                    'amenities' => ['Wifi', 'Kitchen', 'Air Conditioning', 'Washing Machine', 'Elevator', 'Gym'],
+                    'image_url' => 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 40.723151,
+                    'longitude' => -74.001254
+                ]
+            ],
+            'London' => [
+                [
+                    'name' => 'The Savoy Hotel London',
+                    'type' => 'hotel',
+                    'location' => 'Strand, London',
+                    'description' => 'World-famous historic hotel on the banks of the River Thames. Features exceptional Edwardian and Art Deco suites, butler service, and the finest afternoon high tea in Great Britain.',
+                    'price_per_night' => 540,
+                    'rating' => 4.92,
+                    'rooms_available' => 4,
+                    'amenities' => ['Wifi', 'Air Conditioning', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Free Breakfast'],
+                    'image_url' => 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 51.509852,
+                    'longitude' => -0.120251
+                ],
+                [
+                    'name' => 'Charming Pastel Flat in Notting Hill',
+                    'type' => 'airbnb',
+                    'location' => 'Notting Hill, London',
+                    'description' => 'Delightful, light-filled flat situated inside a classic colorful Victorian terrace house. Seconds away from Portobello Market, complete with a private, flower-filled balcony.',
+                    'price_per_night' => 150,
+                    'rating' => 4.81,
+                    'rooms_available' => 2,
+                    'amenities' => ['Wifi', 'Kitchen', 'Washing Machine', 'Balcony', 'Fireplace'],
+                    'image_url' => 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 51.515234,
+                    'longitude' => -0.201254
+                ]
+            ],
+            'Rome' => [
+                [
+                    'name' => 'Colosseum View Penthouse Terrace',
+                    'type' => 'airbnb',
+                    'location' => 'Monti, Rome',
+                    'description' => 'Spectacular private penthouse apartment featuring a massive private terracotta terrace with absolutely direct, unobstructed views of the Colosseum. Perfect for sunset dinners.',
+                    'price_per_night' => 195,
+                    'rating' => 4.94,
+                    'rooms_available' => 2,
+                    'amenities' => ['Wifi', 'Kitchen', 'Air Conditioning', 'Terrace', 'Washing Machine', 'Coffee Maker'],
+                    'image_url' => 'https://images.unsplash.com/photo-1515263487990-61b07816b324?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 41.890251,
+                    'longitude' => 12.492582
+                ]
+            ],
+            'Sydney' => [
+                [
+                    'name' => 'Park Hyatt Sydney Harbor',
+                    'type' => 'hotel',
+                    'location' => 'The Rocks, Sydney',
+                    'description' => 'Spectacular waterfront luxury hotel nestled right beneath the Sydney Harbour Bridge. Offers unobstructed, majestic views directly facing the Sydney Opera House and a rooftop heated pool.',
+                    'price_per_night' => 510,
+                    'rating' => 4.97,
+                    'rooms_available' => 6,
+                    'amenities' => ['Wifi', 'Pool', 'Gym', 'Spa', 'Restaurant', 'Bar', 'Air Conditioning'],
+                    'image_url' => 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => -33.856852,
+                    'longitude' => 151.215254
+                ]
+            ],
+            'Maldives' => [
+                [
+                    'name' => 'Soneva Jani Luxury Water Villa',
+                    'type' => 'hotel',
+                    'location' => 'Noonu Atoll, Maldives',
+                    'description' => 'The epitome of overwater luxury. Features massive split-level villas with private lagoon pools, waterslides straight into the ocean, retractable roofs for stargazing, and private dining.',
+                    'price_per_night' => 1350,
+                    'rating' => 4.98,
+                    'rooms_available' => 3,
+                    'amenities' => ['Wifi', 'Pool', 'Spa', 'Restaurant', 'Bar', 'Air Conditioning', 'Free Breakfast', 'Water Slide'],
+                    'image_url' => 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=800&q=80',
+                    'latitude' => 5.661234,
+                    'longitude' => 73.342154
+                ]
+            ]
+        ];
+
+        foreach ($hotels as $destName => $propertyList) {
+            $destination = Destination::where('name', $destName)->first();
+            if ($destination) {
+                foreach ($propertyList as $p) {
+                    $p['destination_id'] = $destination->id;
+                    \App\Models\Hotel::create($p);
+                }
+            }
+        }
     }
 }
+

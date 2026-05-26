@@ -12,7 +12,35 @@ class TravelController extends Controller
     {
         $activities = Activity::all();
         $advertisements = Destination::inRandomOrder()->take(20)->get();
-        return view('welcome', compact('activities', 'advertisements'));
+
+        // Stays recommendation based on latest bookings
+        $latestBooking = \App\Models\Booking::with('destination')->latest()->first();
+        if ($latestBooking && $latestBooking->destination_id) {
+            $bookedHotelId = $latestBooking->hotel_id;
+            $recommendedHotels = \App\Models\Hotel::where('destination_id', $latestBooking->destination_id)
+                ->when($bookedHotelId, function($q) use ($bookedHotelId) {
+                    $q->where('id', '!=', $bookedHotelId);
+                })
+                ->limit(3)
+                ->get();
+                
+            if ($recommendedHotels->count() < 3) {
+                $additional = \App\Models\Hotel::whereNotIn('id', $recommendedHotels->pluck('id'))
+                    ->when($bookedHotelId, function($q) use ($bookedHotelId) {
+                        $q->where('id', '!=', $bookedHotelId);
+                    })
+                    ->orderBy('rating', 'desc')
+                    ->limit(3 - $recommendedHotels->count())
+                    ->get();
+                $recommendedHotels = $recommendedHotels->concat($additional);
+            }
+            $recommendationReason = "Based on upcoming travel to " . ($latestBooking->destination->name ?? 'your destination');
+        } else {
+            $recommendedHotels = \App\Models\Hotel::orderBy('rating', 'desc')->limit(3)->get();
+            $recommendationReason = "Recommended Premium Stays Worldwide";
+        }
+
+        return view('welcome', compact('activities', 'advertisements', 'recommendedHotels', 'recommendationReason'));
     }
 
     public function recommend(Request $request)

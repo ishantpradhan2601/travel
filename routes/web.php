@@ -21,4 +21,13 @@ Route::post('/flights/search', [FlightController::class, 'search'])->name('fligh
 Route::post('/flights/book', [FlightController::class, 'book'])->name('flights.book');
 Route::get('/airports/suggest', [FlightController::class, 'suggest'])->name('airports.suggest');
 
+use App\Http\Controllers\HotelController;
+Route::get('/hotels', [HotelController::class, 'index'])->name('hotels.index');
+Route::get('/hotels/{hotel}', [HotelController::class, 'show'])->name('hotels.show');
+Route::post('/hotels/{hotel}/book', [HotelController::class, 'book'])->name('hotels.book');
+
+Route::get('/api/hotels', [HotelController::class, 'apiSearch'])->name('api.hotels.search');
+Route::get('/api/hotels/{hotel}', [HotelController::class, 'apiDetail'])->name('api.hotels.detail');
+
+
 

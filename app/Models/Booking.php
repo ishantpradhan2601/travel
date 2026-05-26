@@ -10,6 +10,7 @@ class Booking extends Model
 {
     protected $fillable = [
         'destination_id',
+        'hotel_id',
         'customer_name',
         'customer_email',
         'start_date',
@@ -38,5 +39,13 @@ class Booking extends Model
     public function destination(): BelongsTo
     {
         return $this->belongsTo(Destination::class);
+    }
+
+    /**
+     * Relationship with Hotel/Airbnb Property
+     */
+    public function hotel(): BelongsTo
+    {
+        return $this->belongsTo(Hotel::class);
     }
 }

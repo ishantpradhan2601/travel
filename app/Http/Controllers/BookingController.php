@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Destination;
+use App\Models\Hotel;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
@@ -45,7 +46,7 @@ class BookingController extends Controller
      */
     public function show($reference)
     {
-        $booking = Booking::with('destination')->where('booking_reference', $reference)->firstOrFail();
+        $booking = Booking::with(['destination', 'hotel'])->where('booking_reference', $reference)->firstOrFail();
         return view('bookings.confirmation', compact('booking'));
     }
 
@@ -54,7 +55,37 @@ class BookingController extends Controller
      */
     public function index()
     {
-        $bookings = Booking::with('destination')->latest()->get();
-        return view('bookings.index', compact('bookings'));
+        $bookings = Booking::with(['destination', 'hotel'])->latest()->get();
+        
+        $latestBooking = $bookings->first();
+        if ($latestBooking && $latestBooking->destination_id) {
+            // Recommend hotels in the same destination, excluding any hotel they already booked
+            $bookedHotelId = $latestBooking->hotel_id;
+            $recommendedHotels = Hotel::where('destination_id', $latestBooking->destination_id)
+                ->when($bookedHotelId, function($q) use ($bookedHotelId) {
+                    $q->where('id', '!=', $bookedHotelId);
+                })
+                ->limit(3)
+                ->get();
+                
+            // If we find less than 3, fill with top-rated hotels globally
+            if ($recommendedHotels->count() < 3) {
+                $additional = Hotel::whereNotIn('id', $recommendedHotels->pluck('id'))
+                    ->when($bookedHotelId, function($q) use ($bookedHotelId) {
+                        $q->where('id', '!=', $bookedHotelId);
+                    })
+                    ->orderBy('rating', 'desc')
+                    ->limit(3 - $recommendedHotels->count())
+                    ->get();
+                $recommendedHotels = $recommendedHotels->concat($additional);
+            }
+            $recommendationReason = "Based on your upcoming trip to " . ($latestBooking->destination->name ?? 'your destination');
+        } else {
+            // No bookings yet, recommend top-rated worldwide stays
+            $recommendedHotels = Hotel::orderBy('rating', 'desc')->limit(3)->get();
+            $recommendationReason = "Recommended Premium Stays Worldwide";
+        }
+
+        return view('bookings.index', compact('bookings', 'recommendedHotels', 'recommendationReason'));
     }
 }
