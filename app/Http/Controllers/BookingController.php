@@ -6,6 +6,9 @@ use App\Models\Booking;
 use App\Models\Destination;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BoardingPassMail;
+use App\Mail\BookingCancelledMail;
 
 class BookingController extends Controller
 {
@@ -37,25 +40,34 @@ class BookingController extends Controller
             'status' => 'confirmed',
         ]);
 
+        // Auto-send boarding pass email
+        try {
+            Mail::to($booking->customer_email)->send(new BoardingPassMail($booking));
+        } catch (\Exception $e) {
+            logger()->error('Failed to send auto boarding pass email: ' . $e->getMessage());
+        }
+
         return redirect()->route('bookings.confirmation', $booking->booking_reference)
                          ->with('success', 'Your reservation was processed successfully!');
     }
 
-    /**
-     * Show booking ticket confirmation
-     */
     public function show($reference)
     {
         $booking = Booking::with(['destination', 'hotel'])->where('booking_reference', $reference)->firstOrFail();
+
+        if ($booking->customer_email !== auth()->user()->email) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return view('bookings.confirmation', compact('booking'));
     }
 
-    /**
-     * List all reservations
-     */
     public function index()
     {
-        $bookings = Booking::with(['destination', 'hotel'])->latest()->get();
+        $bookings = Booking::with(['destination', 'hotel'])
+            ->where('customer_email', auth()->user()->email)
+            ->latest()
+            ->get();
         
         $latestBooking = $bookings->first();
         if ($latestBooking && $latestBooking->destination_id) {
@@ -87,5 +99,31 @@ class BookingController extends Controller
         }
 
         return view('bookings.index', compact('bookings', 'recommendedHotels', 'recommendationReason'));
+    }
+
+    public function cancel($reference)
+    {
+        $booking = Booking::with(['destination', 'hotel'])->where('booking_reference', $reference)->firstOrFail();
+
+        if ($booking->customer_email !== auth()->user()->email) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($booking->status === 'cancelled') {
+            return back()->with('error', 'This booking has already been cancelled.');
+        }
+
+        $booking->status = 'cancelled';
+        $booking->save();
+
+        // Auto-send cancellation email notice
+        try {
+            Mail::to($booking->customer_email)->send(new BookingCancelledMail($booking));
+        } catch (\Exception $e) {
+            logger()->error('Failed to send cancellation email: ' . $e->getMessage());
+        }
+
+        return redirect()->route('bookings.confirmation', $booking->booking_reference)
+                         ->with('success', 'Your travel booking has been successfully cancelled and refund initiated.');
     }
 }

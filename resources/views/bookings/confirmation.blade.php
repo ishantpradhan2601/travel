@@ -337,11 +337,20 @@
         </div>
     @endif
 
+    @if($booking->status === 'cancelled')
+        <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.5rem;color:#b91c1c;font-size:0.9rem;display:flex;align-items:center;gap:0.6rem;" class="fade-in">
+            <i class="fa-solid fa-circle-xmark" style="font-size:1.1rem"></i>
+            <span>This travel booking has been cancelled and a full refund has been initiated to your original payment method.</span>
+        </div>
+    @endif
+
     <div class="ticket-board fade-in">
         <!-- Header -->
-        <div class="ticket-header" style="{{ $hotel ? 'background: linear-gradient(135deg, var(--primary), #ff8a65);' : ($flight ? 'background: linear-gradient(135deg, var(--secondary), #56a8f5);' : '') }}">
+        <div class="ticket-header" style="{{ $booking->status === 'cancelled' ? 'background: linear-gradient(135deg, #6b7280, #9ca3af);' : ($hotel ? 'background: linear-gradient(135deg, var(--primary), #ff8a65);' : ($flight ? 'background: linear-gradient(135deg, var(--secondary), #56a8f5);' : '')) }}">
             <div class="ticket-header-logo">
-                @if($hotel)
+                @if($booking->status === 'cancelled')
+                    <i class="fa-solid fa-ban"></i> CANCELLED PASS / RESERVATION
+                @elseif($hotel)
                     <i class="fa-solid {{ $hotel->type == 'hotel' ? 'fa-hotel' : 'fa-house-chimney' }}"></i> {{ strtoupper($hotel->type) }} RESERVATION / STAY
                 @elseif($flight)
                     <i class="fa-solid fa-plane"></i> FLIGHT PASS / BOARDING
@@ -385,7 +394,11 @@
                 </div>
                 <div class="ticket-info-group">
                     <label>Booking Status</label>
-                    <span style="color:#00C9A7;"><i class="fa-solid fa-circle-check"></i> {{ ucfirst($booking->status) }}</span>
+                    @if($booking->status === 'cancelled')
+                        <span style="color:#ef4444;"><i class="fa-solid fa-circle-xmark"></i> Cancelled</span>
+                    @else
+                        <span style="color:#00C9A7;"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+                    @endif
                 </div>
 
                 <div class="ticket-info-group">
@@ -454,9 +467,17 @@
 
     <!-- Ticket Actions -->
     <div class="ticket-actions fade-in-2">
-        <button class="btn-outline" onclick="window.print()" style="padding:0.55rem 1.5rem;font-size:0.9rem">
-            <i class="fa-solid fa-print"></i> Print Boarding Pass
-        </button>
+        @if($booking->status === 'confirmed')
+            <form action="{{ route('bookings.cancel', $booking->booking_reference) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                @csrf
+                <button type="submit" class="btn-outline" style="border-radius:100px; font-size:0.9rem; padding:0.55rem 1.5rem; border-color: #ef4444; color: #ef4444; cursor: pointer; background: transparent; display: inline-flex; align-items: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-ban"></i> Cancel Booking
+                </button>
+            </form>
+            <button class="btn-outline" onclick="window.print()" style="padding:0.55rem 1.5rem;font-size:0.9rem">
+                <i class="fa-solid fa-print"></i> Print Boarding Pass
+            </button>
+        @endif
         <a href="{{ route('bookings.index') }}" class="back-btn" style="border-radius:100px;font-size:0.9rem;padding:0.55rem 1.5rem">
             <i class="fa-solid fa-list"></i> View All Bookings
         </a>

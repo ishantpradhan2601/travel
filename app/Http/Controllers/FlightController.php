@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Destination;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BoardingPassMail;
 
 class FlightController extends Controller
 {
@@ -185,8 +187,7 @@ class FlightController extends Controller
             'status' => 'confirmed',
         ]);
 
-        // Save session meta
-        session()->put('flight_' . $booking->booking_reference, [
+        $flightData = [
             'airline' => $request->airline,
             'flight_number' => $request->flight_number,
             'departure_city' => $request->departure_city,
@@ -194,7 +195,17 @@ class FlightController extends Controller
             'destination_city' => $request->destination_city,
             'destination_code' => $request->destination_code,
             'price' => $request->price,
-        ]);
+        ];
+
+        // Save session meta
+        session()->put('flight_' . $booking->booking_reference, $flightData);
+
+        // Auto-send boarding pass email
+        try {
+            Mail::to($booking->customer_email)->send(new BoardingPassMail($booking, $flightData));
+        } catch (\Exception $e) {
+            logger()->error('Failed to send auto flight boarding pass email: ' . $e->getMessage());
+        }
 
         return redirect()->route('bookings.confirmation', $booking->booking_reference)
                          ->with('success', 'Your flight was booked successfully!');

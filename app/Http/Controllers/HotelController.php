@@ -7,6 +7,8 @@ use App\Models\Destination;
 use App\Models\Hotel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BoardingPassMail;
 
 class HotelController extends Controller
 {
@@ -125,6 +127,13 @@ class HotelController extends Controller
             'total_price' => $totalPrice,
             'status' => 'confirmed',
         ]);
+
+        // Auto-send stay reservation email
+        try {
+            Mail::to($booking->customer_email)->send(new BoardingPassMail($booking));
+        } catch (\Exception $e) {
+            logger()->error('Failed to send auto hotel stay email: ' . $e->getMessage());
+        }
 
         return redirect()->route('bookings.confirmation', $booking->booking_reference)
                          ->with('success', 'Your Hotel stay has been successfully reserved!');

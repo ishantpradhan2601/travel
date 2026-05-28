@@ -6,9 +6,10 @@ use App\Http\Controllers\BookingController;
 Route::get('/', [TravelController::class, 'index'])->name('home');
 Route::post('/recommend', [TravelController::class, 'recommend'])->name('recommend')->middleware('auth');
 
-Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-Route::get('/bookings/confirmation/{reference}', [BookingController::class, 'show'])->name('bookings.confirmation');
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index')->middleware('auth');
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store')->middleware('auth');
+Route::get('/bookings/confirmation/{reference}', [BookingController::class, 'show'])->name('bookings.confirmation')->middleware('auth');
+Route::post('/bookings/cancel/{reference}', [BookingController::class, 'cancel'])->name('bookings.cancel')->middleware('auth');
 
 Route::get('/login', [App\Http\Controllers\AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login.post');

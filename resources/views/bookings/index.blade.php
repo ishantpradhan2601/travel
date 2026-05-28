@@ -83,6 +83,10 @@
             background: #e6faf7;
             color: #00C9A7;
         }
+        .status-badge.cancelled {
+            background: #fef2f2;
+            color: #ef4444;
+        }
     </style>
     <script>
         (function() {
@@ -296,14 +300,24 @@
                                 <span style="font-weight:800;color:var(--primary)">${{ number_format($booking->total_price) }}</span>
                             </td>
                             <td>
-                                <span class="status-badge confirmed">
-                                    <i class="fa-solid fa-circle-check"></i> {{ ucfirst($booking->status) }}
+                                <span class="status-badge {{ $booking->status }}">
+                                    <i class="fa-solid {{ $booking->status === 'cancelled' ? 'fa-circle-xmark' : 'fa-circle-check' }}"></i> {{ ucfirst($booking->status) }}
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('bookings.confirmation', $booking->booking_reference) }}" class="btn-book" style="padding:0.45rem 1rem;font-size:0.78rem;text-decoration:none;display:inline-block;">
-                                    View Ticket
-                                </a>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <a href="{{ route('bookings.confirmation', $booking->booking_reference) }}" class="btn-book" style="padding:0.45rem 1rem;font-size:0.78rem;text-decoration:none;display:inline-block;">
+                                        View Ticket
+                                    </a>
+                                    @if($booking->status === 'confirmed')
+                                        <form action="{{ route('bookings.cancel', $booking->booking_reference) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                                            @csrf
+                                            <button type="submit" class="btn-outline" style="padding:0.45rem 1rem; font-size:0.78rem; border-color: #ef4444; color: #ef4444; background: transparent; cursor: pointer; border-radius: var(--radius-sm); font-family: inherit;">
+                                                Cancel
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
