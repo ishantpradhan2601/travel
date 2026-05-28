@@ -22,6 +22,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'passport_number',
+        'birth_date',
+        'preferences',
     ];
 
     /**
@@ -44,6 +48,15 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'preferences' => 'array',
         ];
+    }
+
+    /**
+     * Relationship with Companions (family/friends)
+     */
+    public function companions()
+    {
+        return $this->hasMany(Companion::class);
     }
 }

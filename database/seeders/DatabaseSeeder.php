@@ -218,7 +218,7 @@ class DatabaseSeeder extends Seeder
                 'max_budget' => 4500,
                 'best_months' => [10, 11, 12, 1, 2, 6, 7, 8],
                 'activities' => ['Nature', 'Adventure', 'Relaxation'],
-                'image_url' => 'https://images.unsplash.com/photo-1504829857797-ddff28127792?auto=format&fit=crop&w=800&q=80'
+                'image_url' => 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=800&q=80'
             ],
             [
                 'name' => 'Queenstown',

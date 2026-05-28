@@ -116,6 +116,9 @@ class FlightController extends Controller
             ]
         ];
 
+        $companions = auth()->check() ? auth()->user()->companions()->orderBy('name', 'asc')->get() : collect();
+        $user = auth()->user();
+
         return view('flights.results', compact(
             'flights',
             'depCity',
@@ -124,7 +127,9 @@ class FlightController extends Controller
             'destCode',
             'departureDate',
             'returnDate',
-            'travelers'
+            'travelers',
+            'companions',
+            'user'
         ));
     }
 

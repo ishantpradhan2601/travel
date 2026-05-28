@@ -86,7 +86,9 @@ class HotelController extends Controller
     public function show(Hotel $hotel)
     {
         $hotel->load('destination');
-        return view('hotels.show', compact('hotel'));
+        $companions = auth()->check() ? auth()->user()->companions()->orderBy('name', 'asc')->get() : collect();
+        $user = auth()->user();
+        return view('hotels.show', compact('hotel', 'companions', 'user'));
     }
 
     /**

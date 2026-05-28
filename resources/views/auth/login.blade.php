@@ -180,6 +180,13 @@
             </div>
         @endif
 
+        @if(session('info') || request()->query('info'))
+            <div style="background: rgba(255,90,48,0.06); border: 1px solid rgba(255,90,48,0.2); border-radius: var(--radius-sm, 6px); padding: 0.75rem 1rem; margin-bottom: 1.5rem; color: var(--primary, #FF5A30); font-size: 0.88rem; display: flex; align-items: center; gap: 0.6rem; text-align: left; font-weight: 500; box-shadow: var(--shadow-sm);" class="fade-in">
+                <i class="fa-solid fa-circle-info" style="font-size: 1rem; color: var(--primary, #FF5A30);"></i>
+                <span>{{ session('info') ?? request()->query('info') }}</span>
+            </div>
+        @endif
+
         <form action="{{ route('login.post') }}" method="POST" class="auth-form">
             @csrf
             <div class="form-group">

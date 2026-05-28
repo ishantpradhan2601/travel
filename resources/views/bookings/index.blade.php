@@ -185,7 +185,7 @@
             <li><a href="{{ route('bookings.index') }}" class="active">My Bookings</a></li>
             <li><a href="{{ route('home') }}">Find Destinations</a></li>
             @auth
-                <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
+                <li><a href="{{ route('profile.index') }}"><i class="fa-solid fa-circle-user" style="color: var(--primary);"></i> {{ auth()->user()->name }}</a></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf

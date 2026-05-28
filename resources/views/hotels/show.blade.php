@@ -278,7 +278,7 @@
             <li><a href="{{ route('hotels.index') }}" class="active">Hotels & Airbnbs</a></li>
             <li><a href="{{ route('bookings.index') }}">My Bookings</a></li>
             @auth
-                <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
+                <li><a href="{{ route('profile.index') }}"><i class="fa-solid fa-circle-user" style="color: var(--primary);"></i> {{ auth()->user()->name }}</a></li>
             @else
                 <li><a href="{{ route('login') }}" class="nav-cta"><i class="fa-solid fa-user"></i> Sign In</a></li>
             @endauth
@@ -402,6 +402,23 @@
                 <form action="{{ route('hotels.book', $hotel->id) }}" method="POST" id="bookingForm">
                     @csrf
                     
+                    @auth
+                        <!-- Quick Auto-Fill -->
+                        <div class="form-group" style="margin-bottom:0.85rem;">
+                            <label for="autofill_guest">⚡ Quick Auto-Fill Profile</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa-solid fa-bolt" style="color:var(--primary); font-size:0.85rem;"></i>
+                                <select id="autofill_guest" onchange="autofillGuestDetails(this)" style="width: 100%; padding: 0.75rem 0.85rem 0.75rem 2.4rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: inherit; color: var(--text); background: var(--bg); outline: none; cursor:pointer; font-weight:600;">
+                                    <option value="">Select profile to autofill...</option>
+                                    <option value="self" data-name="{{ $user->name }}" data-email="{{ $user->email }}">Self ({{ $user->name }})</option>
+                                    @foreach($companions as $comp)
+                                        <option value="{{ $comp->id }}" data-name="{{ $comp->name }}" data-email="{{ $comp->email }}">{{ $comp->relationship }}: {{ $comp->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    @endauth
+
                     <!-- Passenger Name -->
                     <div class="form-group" style="margin-bottom:0.85rem;">
                         <label for="customer_name">Lead Guest Name</label>
@@ -481,6 +498,21 @@
 </footer>
 
 <script>
+    function autofillGuestDetails(selectEl) {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        if (!selectedOption || selectedOption.value === "") return;
+        
+        const name = selectedOption.getAttribute('data-name') || '';
+        const email = selectedOption.getAttribute('data-email') || '';
+        
+        const nameInput = document.getElementById('customer_name');
+        const emailInput = document.getElementById('customer_email');
+        
+        if (nameInput) nameInput.value = name;
+        if (emailInput) emailInput.value = email;
+    }
+
+    const isUserLoggedIn = @json(auth()->check());
     const today = new Date().toISOString().split('T')[0];
     const checkin = document.getElementById('start_date');
     const checkout = document.getElementById('end_date');
@@ -496,7 +528,12 @@
     checkout.addEventListener('change', calculatePrice);
     guests.addEventListener('input', calculatePrice);
 
-    form.addEventListener('submit', function () {
+    form.addEventListener('submit', function (e) {
+        if (!isUserLoggedIn) {
+            e.preventDefault();
+            window.location.href = "{{ route('login') }}?info=" + encodeURIComponent("Please sign in to book stays instantly.");
+            return;
+        }
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Reserving Stay…';
         submitBtn.disabled = true;
     });

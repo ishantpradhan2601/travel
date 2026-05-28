@@ -282,7 +282,7 @@
             <li><a href="{{ route('home') }}">Find Destinations</a></li>
             <li><a href="{{ route('bookings.index') }}">My Bookings</a></li>
             @auth
-                <li><span style="color: var(--text); font-size: 0.9rem; font-weight: 600; padding: 0.5rem 0.9rem; display: inline-flex; align-items: center; gap: 0.45rem;"><i class="fa-solid fa-circle-user" style="color: var(--primary); font-size: 1.05rem;"></i> {{ auth()->user()->name }}</span></li>
+                <li><a href="{{ route('profile.index') }}"><i class="fa-solid fa-circle-user" style="color: var(--primary);"></i> {{ auth()->user()->name }}</a></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
@@ -431,31 +431,61 @@
                 <input type="hidden" name="price" id="formPrice">
                 <input type="hidden" name="travelers" value="{{ $travelers }}">
 
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div class="form-group full" style="grid-column: span 2;">
-                        <label for="customer_name">Primary Passenger Name</label>
-                        <div class="input-icon-wrap">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" id="customer_name" name="customer_name" placeholder="e.g. Ishan Pradhan" value="{{ auth()->check() ? auth()->user()->name : '' }}" required>
+                <div class="passengers-sections-wrap">
+                    @for($i = 1; $i <= $travelers; $i++)
+                        <div style="background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1.25rem; position: relative;" class="fade-in">
+                            <h4 style="font-size:0.85rem; font-weight:750; color:var(--text); margin-bottom:0.85rem; display:flex; align-items:center; justify-content:space-between; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <span>Passenger #{{ $i }} Details</span>
+                                @auth
+                                    <select class="autofill-select" onchange="autofillPassenger(this, {{ $i }})" style="padding: 0.25rem 0.5rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.72rem; font-family: inherit; color: var(--text); background: var(--white); outline: none; cursor:pointer; font-weight: 700;">
+                                        <option value="">⚡ Auto-Fill Profile</option>
+                                        @if($i == 1)
+                                            <option value="self" data-name="{{ $user->name }}" data-email="{{ $user->email }}" data-passport="{{ $user->passport_number }}">Self ({{ $user->name }})</option>
+                                        @endif
+                                        @foreach($companions as $comp)
+                                            <option value="{{ $comp->id }}" data-name="{{ $comp->name }}" data-email="{{ $comp->email }}" data-passport="{{ $comp->passport_number }}">{{ $comp->relationship }}: {{ $comp->name }}</option>
+                                        @endforeach
+                                    </select>
+                                @endauth
+                            </h4>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                                <div class="form-group {{ $i == 1 ? 'full' : '' }}" style="{{ $i == 1 ? 'grid-column: span 2;' : '' }}">
+                                    <label>Full Name (As in Passport)</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="fa-solid fa-user" style="font-size:0.8rem;"></i>
+                                        <input type="text" id="passenger_name_{{ $i }}" name="{{ $i == 1 ? 'customer_name' : 'passengers['.$i.'][name]' }}" placeholder="e.g. Ishan Pradhan" required 
+                                               value="{{ $i == 1 && auth()->check() ? auth()->user()->name : '' }}">
+                                    </div>
+                                </div>
+                                @if($i == 1)
+                                    <div class="form-group full" style="grid-column: span 2;">
+                                        <label>Email Address</label>
+                                        <div class="input-icon-wrap">
+                                            <i class="fa-solid fa-envelope" style="font-size:0.8rem;"></i>
+                                            <input type="email" id="passenger_email_{{ $i }}" name="customer_email" placeholder="e.g. ishan@example.com" required
+                                                   value="{{ auth()->check() ? auth()->user()->email : '' }}">
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="form-group">
+                                        <label>Email (Optional)</label>
+                                        <div class="input-icon-wrap">
+                                            <i class="fa-solid fa-envelope" style="font-size:0.8rem;"></i>
+                                            <input type="email" id="passenger_email_{{ $i }}" name="passengers[{{ $i }}][email]" placeholder="e.g. companion@example.com">
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="form-group {{ $i == 1 ? 'full' : '' }}" style="{{ $i == 1 ? 'grid-column: span 2;' : '' }}">
+                                    <label>Passport / National ID</label>
+                                    <div class="input-icon-wrap">
+                                        <i class="fa-solid fa-id-card" style="font-size:0.8rem;"></i>
+                                        <input type="text" id="passenger_passport_{{ $i }}" name="{{ $i == 1 ? 'passport_num' : 'passengers['.$i.'][passport]' }}" placeholder="e.g. A12345678" required
+                                               value="{{ $i == 1 && auth()->check() ? auth()->user()->passport_number : '' }}">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group full" style="grid-column: span 2;">
-                        <label for="customer_email">Email Address</label>
-                        <div class="input-icon-wrap">
-                            <i class="fa-solid fa-envelope"></i>
-                            <input type="email" id="customer_email" name="customer_email" placeholder="e.g. ishan@example.com" value="{{ auth()->check() ? auth()->user()->email : '' }}" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full" style="grid-column: span 2;">
-                        <label for="passport_num">Passport / National ID Number</label>
-                        <div class="input-icon-wrap">
-                            <i class="fa-solid fa-id-card"></i>
-                            <input type="text" id="passport_num" placeholder="e.g. A12345678" required>
-                        </div>
-                        <small class="input-hint">Required for secure boarding pass generation</small>
-                    </div>
+                    @endfor
                 </div>
 
                 <div class="booking-summary-box">
@@ -496,6 +526,23 @@
 </footer>
 
 <script>
+    function autofillPassenger(selectEl, passengerIndex) {
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        if (!selectedOption || selectedOption.value === "") return;
+        
+        const name = selectedOption.getAttribute('data-name') || '';
+        const email = selectedOption.getAttribute('data-email') || '';
+        const passport = selectedOption.getAttribute('data-passport') || '';
+        
+        const nameInput = document.getElementById(`passenger_name_${passengerIndex}`);
+        const emailInput = document.getElementById(`passenger_email_${passengerIndex}`);
+        const passportInput = document.getElementById(`passenger_passport_${passengerIndex}`);
+        
+        if (nameInput) nameInput.value = name;
+        if (emailInput) emailInput.value = email;
+        if (passportInput) passportInput.value = passport;
+    }
+
     let basePricePerTraveler = 0;
     const numTravelers = {{ $travelers }};
 
