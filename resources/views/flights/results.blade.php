@@ -193,6 +193,174 @@
             border-color: var(--primary);
             color: var(--primary);
         }
+
+        /* ── AI SMART FARE PREDICTOR STYLES ── */
+        .results-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        @media (min-width: 992px) {
+            .results-layout {
+                grid-template-columns: 360px 1fr;
+            }
+        }
+        .ai-predict-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 1.75rem;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: sticky;
+            top: 80px;
+        }
+        .ai-predict-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+        .ai-predict-header h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+        .ai-predict-header i {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+        .ai-gauge-container {
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .ai-gauge-price {
+            font-size: 2.2rem;
+            font-weight: 850;
+            color: var(--primary);
+            font-family: monospace;
+            line-height: 1;
+        }
+        .ai-gauge-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge-buy {
+            background: #e6faf7;
+            color: #00C9A7;
+            border: 1px solid rgba(0, 201, 167, 0.15);
+        }
+        .badge-wait {
+            background: #fffbeb;
+            color: #d97706;
+            border: 1px solid rgba(217, 119, 6, 0.15);
+        }
+        .badge-risk {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+        .ai-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .ai-form-group label {
+            font-size: 0.73rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ai-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .ai-slider {
+            flex: 1;
+            accent-color: var(--primary);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        .ai-slider-val {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text);
+            width: 60px;
+            text-align: right;
+        }
+        .ai-select {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .ai-select:focus {
+            border-color: var(--primary);
+        }
+        .ai-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 70px;
+            border-bottom: 2px solid var(--border);
+            padding: 0 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .ai-chart-bar-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            width: 20%;
+        }
+        .ai-chart-bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            background: var(--border);
+            transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1), background 0.3s;
+            height: 0px;
+        }
+        .ai-chart-bar.lowest {
+            background: var(--accent);
+        }
+        .ai-chart-bar.active {
+            background: var(--primary);
+        }
+        .ai-chart-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
     </style>
     <script>
         (function() {
@@ -629,6 +797,7 @@
             }, 1000);
         }, 800);
     });
+
 </script>
 
 </body>

@@ -71,7 +71,7 @@ class FlightController extends Controller
             }
         }
 
-        // Generate 3 dynamic mock flights based on resolved inputs
+        // Generate dynamic mock flights
         $departureDate = $request->departure_date;
         $returnDate = $request->return_date;
         $travelers = (int)$request->travelers;
@@ -115,8 +115,146 @@ class FlightController extends Controller
                 'class' => 'Economy',
                 'carbon' => '-5% CO2',
                 'logo' => 'fa-plane-departure',
+            ],
+            [
+                'airline' => 'United Airlines',
+                'flight_number' => 'UA-' . rand(100, 999),
+                'price' => 490,
+                'departure_time' => '06:15 AM',
+                'arrival_time' => '02:40 PM',
+                'duration' => '8h 25m',
+                'type' => 'Direct',
+                'stops' => 'Non-stop',
+                'class' => 'Economy',
+                'carbon' => '-8% CO2',
+                'logo' => 'fa-plane',
+            ],
+            [
+                'airline' => 'Swiss International',
+                'flight_number' => 'LX-' . rand(100, 999),
+                'price' => 610,
+                'departure_time' => '01:10 PM',
+                'arrival_time' => '10:55 PM',
+                'duration' => '9h 45m',
+                'type' => '1 Stop',
+                'stops' => '1 Stop (ZRH)',
+                'class' => 'Economy',
+                'carbon' => '-14% CO2',
+                'logo' => 'fa-plane-departure',
+            ],
+            [
+                'airline' => 'Emirates',
+                'flight_number' => 'EK-' . rand(100, 999),
+                'price' => 850,
+                'departure_time' => '10:15 PM',
+                'arrival_time' => '09:35 AM',
+                'duration' => '11h 20m',
+                'type' => '1 Stop',
+                'stops' => '1 Stop (DXB)',
+                'class' => 'Economy',
+                'carbon' => 'Average CO2',
+                'logo' => 'fa-plane-up',
+            ],
+            [
+                'airline' => 'British Airways',
+                'flight_number' => 'BA-' . rand(100, 999),
+                'price' => 590,
+                'departure_time' => '09:40 AM',
+                'arrival_time' => '07:50 PM',
+                'duration' => '10h 10m',
+                'type' => '1 Stop',
+                'stops' => '1 Stop (LHR)',
+                'class' => 'Economy',
+                'carbon' => '-3% CO2',
+                'logo' => 'fa-plane-departure',
+            ],
+            [
+                'airline' => 'Singapore Airlines',
+                'flight_number' => 'SQ-' . rand(100, 999),
+                'price' => 880,
+                'departure_time' => '07:20 PM',
+                'arrival_time' => '07:15 AM',
+                'duration' => '11h 55m',
+                'type' => '1 Stop',
+                'stops' => '1 Stop (SIN)',
+                'class' => 'Economy',
+                'carbon' => '-10% CO2',
+                'logo' => 'fa-plane',
             ]
         ];
+
+        // ── FLIGHT PRICE PREDICTION API / LOCAL SIMULATOR INTEGRATION ──
+        $daysToDeparture = max(1, ceil((strtotime($departureDate) - time()) / 86400));
+
+        // Base price determined by destination city distances
+        $basePrices = [
+            'Paris' => 550,
+            'London' => 500,
+            'Bali' => 450,
+            'Tokyo' => 700,
+            'Zurich' => 600,
+            'Osaka' => 650,
+            'Cape Town' => 750,
+            'New York' => 400,
+        ];
+        $destBase = $basePrices[$destCity] ?? 500;
+
+        foreach ($flights as &$flight) {
+            $apiPrice = null;
+            
+            // Try fetching from the Heroku Flight Price Prediction API
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(1.2)->post('https://flight-price-prediction-api.herokuapp.com/predict', [
+                    'airline' => $flight['airline'],
+                    'source' => $depCity,
+                    'destination' => $destCity,
+                    'days_left' => $daysToDeparture,
+                    'class' => $flight['class'],
+                    'stops' => $flight['stops'],
+                ]);
+                
+                if ($response->successful()) {
+                    $resData = $response->json();
+                    $apiPrice = $resData['price'] ?? $resData['predicted_price'] ?? null;
+                }
+            } catch (\Exception $e) {
+                // Fail silently and proceed to offline logic fallback
+            }
+
+            if ($apiPrice) {
+                $flight['price'] = round($apiPrice);
+            } else {
+                // Offline Local Pricing Regression Model coefficient fallback
+                $airlineMultiplier = 1.0;
+                if ($flight['airline'] === 'Air France' || $flight['airline'] === 'Swiss International') {
+                    $airlineMultiplier = 1.15;
+                } elseif ($flight['airline'] === 'Lufthansa' || $flight['airline'] === 'British Airways') {
+                    $airlineMultiplier = 1.10;
+                } elseif ($flight['airline'] === 'Emirates' || $flight['airline'] === 'Singapore Airlines') {
+                    $airlineMultiplier = 1.25; // Premium service
+                } elseif ($flight['airline'] === 'United Airlines') {
+                    $airlineMultiplier = 0.95; // Budget-friendly
+                }
+
+                $stopsMultiplier = $flight['type'] === 'Direct' ? 1.12 : 1.0;
+
+                // Booking window days remaining penalty curves
+                $daysFactor = 1.0;
+                if ($daysToDeparture >= 30) {
+                    $daysFactor = 0.88; // Advance booking discount
+                } elseif ($daysToDeparture >= 15) {
+                    $daysFactor = 1.0;  // Standard pricing zone
+                } elseif ($daysToDeparture >= 8) {
+                    $daysFactor = 1.0 + (15 - $daysToDeparture) * 0.04; // Moderate daily increase
+                } else {
+                    $daysFactor = 1.28 + (8 - $daysToDeparture) * 0.12;  // Extreme late booking pricing spikes
+                }
+
+                $predictedPrice = $destBase * $airlineMultiplier * $stopsMultiplier * $daysFactor;
+                $flight['price'] = max(150, round($predictedPrice));
+            }
+        }
+        unset($flight);
 
         $companions = auth()->check() ? auth()->user()->companions()->orderBy('name', 'asc')->get() : collect();
         $user = auth()->user();

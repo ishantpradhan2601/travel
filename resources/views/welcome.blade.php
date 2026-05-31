@@ -660,6 +660,9 @@
         &copy; 2026 <span>TravelScape</span>. A personalized travel recommendation system
         built with Laravel 12. All rights reserved.
     </p>
+    <p style="margin-top: 0.75rem; font-size: 0.78rem; opacity: 0.7;">
+        <i class="fa-solid fa-code" style="color: var(--primary);"></i> Developer Mode: Explore the <a href="{{ route('test') }}" style="color: var(--primary); text-decoration: none; font-weight: 600; transition: all 0.2s;" onmouseover="this.style.textDecoration='underline'; this.style.color='#ff8a65';" onmouseout="this.style.textDecoration='none'; this.style.color='var(--primary)';">Interactive Walkthrough & DB Inspector Console</a>
+    </p>
 </footer>
 
 <script>

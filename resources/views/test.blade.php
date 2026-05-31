@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Inspector Console – TravelScape</title>
-    <meta name="description" content="TravelScape SQLite Database Logins Inspector. Access restricted.">
+    <title>Platform Walkthrough & Dev Console – TravelScape</title>
+    <meta name="description" content="TravelScape Interactive Walkthrough and Live SQLite Database Inspector. Access restricted.">
     <link rel="stylesheet" href="{{ asset('css/app-style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script>
@@ -409,6 +409,317 @@
             color: white;
             font-size: 1.1rem;
         }
+
+        /* ── INTERACTIVE SYSTEM DATA FLOW VISUALIZER Styles ── */
+        .df-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        [data-theme="dark"] .df-card {
+            background: #111b2e;
+        }
+        .df-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.75rem;
+            background: var(--white);
+            padding: 0.4rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .df-tab-btn {
+            flex: 1;
+            min-width: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+        .df-tab-btn.active {
+            color: var(--white);
+            background: var(--secondary);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+        }
+        .df-tab-btn:hover:not(.active) {
+            background: var(--border);
+            color: var(--text);
+        }
+        .df-pipeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .df-node {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+        .df-node::after {
+            content: '';
+            position: absolute;
+            right: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.5rem;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+            display: none;
+        }
+        @media (min-width: 992px) {
+            .df-node::after {
+                display: block;
+            }
+            .df-node:last-child::after {
+                display: none;
+            }
+        }
+        .df-node-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        .df-node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: white;
+        }
+        .df-node-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg);
+            color: var(--text-muted);
+            width: fit-content;
+        }
+        .df-node-content {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+        
+        /* Node types colors */
+        .icon-client { background: var(--primary); }
+        .icon-route { background: var(--secondary); }
+        .icon-controller { background: #8b5cf6; }
+        .icon-db { background: var(--accent); }
+        
+        /* Interactive Highlight states */
+        .df-node.highlighted {
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(26, 115, 232, 0.25);
+            transform: translateY(-2px);
+        }
+        .df-node.highlighted-primary {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(255, 90, 48, 0.25);
+            transform: translateY(-2px);
+        }
+        .df-node.highlighted-accent {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 201, 167, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .df-flow-details {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .df-flow-details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .df-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .df-step-item {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+        }
+        .df-step-item::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 28px;
+            bottom: -20px;
+            width: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+        .df-step-item:last-child::after {
+            display: none;
+        }
+        .df-step-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            z-index: 2;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .df-step-item.active .df-step-num {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+            box-shadow: 0 0 8px rgba(26, 115, 232, 0.4);
+        }
+        .df-step-content {
+            padding-top: 0.2rem;
+        }
+        .df-step-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+        .df-step-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+        
+        .df-code-panel {
+            background: #0f172a;
+            border-radius: var(--radius-sm);
+            padding: 1.25rem;
+            border: 1px solid #1e293b;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-x: auto;
+        }
+        .df-code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #94a3b8;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 0.5rem;
+        }
+        .df-code-header span {
+            color: var(--accent);
+        }
+        .df-code-body {
+            font-family: monospace;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            white-space: pre;
+        }
+        .df-code-param {
+            color: #38bdf8;
+        }
+        .df-code-keyword {
+            color: #f472b6;
+        }
+        .df-code-string {
+            color: #34d399;
+        }
+        .df-code-comment {
+            color: #64748b;
+            font-style: italic;
+        }
+        .schema-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .schema-table-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .schema-table-header {
+            background: var(--border);
+            padding: 0.6rem 0.9rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .schema-table-rows {
+            padding: 0.5rem 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .schema-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+        .schema-field-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+        .schema-field-type {
+            opacity: 0.8;
+            font-size: 0.65rem;
+        }
     </style>
 </head>
 <body>
@@ -429,10 +740,10 @@
 <!-- TEST HERO HEADER -->
 <header class="test-header">
     <div class="test-badge">
-        <i class="fa-solid fa-database"></i> SQLite Active Database Inspector
+        <i class="fa-solid fa-compass"></i> TravelScape Platform Walkthrough
     </div>
-    <h1>Saved <span>Login Accounts</span></h1>
-    <p>Live, real-time logging records queried directly from the SQLite database. Inspect raw user profiles, secure credentials, or authenticate into tester sessions.</p>
+    <h1>Developer <span>Walkthrough & Database Console</span></h1>
+    <p>Interactive data flow visualizer and real-time SQLite database inspector. Trace site architecture flows, view live schemas, or authenticate instantly into testing sessions.</p>
 </header>
 
 <!-- MAIN CONTENT -->
@@ -454,6 +765,169 @@
             </div>
             <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
                 <i class="fa-solid fa-server"></i> Table Name: <code>users</code> &bull; Total Row Count: {{ $users->count() }}
+            </div>
+        </div>
+
+        <!-- INTERACTIVE SYSTEM DATA FLOW VISUALIZER -->
+        <div class="df-card">
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-diagram-project" style="color: var(--primary);"></i> TravelScape Web Architecture & Data Flow
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+                    Analyze how data propagates across different layers of the Laravel 12 application. Click a flow type to animate the pipeline path and view the database schema relationships.
+                </p>
+            </div>
+
+            <!-- Tab Selectors -->
+            <div class="df-tabs">
+                <button class="df-tab-btn active" id="tab-btn-recommendation" onclick="selectJourney('recommendation')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI Recommendation Flow
+                </button>
+                <button class="df-tab-btn" id="tab-btn-hotel" onclick="selectJourney('hotel')">
+                    <i class="fa-solid fa-hotel"></i> Stays Booking Flow
+                </button>
+                <button class="df-tab-btn" id="tab-btn-flight" onclick="selectJourney('flight')">
+                    <i class="fa-solid fa-plane"></i> Flight Suggest Flow
+                </button>
+                <button class="df-tab-btn" id="tab-btn-auth" onclick="selectJourney('auth')">
+                    <i class="fa-solid fa-user-check"></i> Bypass Auth Flow
+                </button>
+            </div>
+
+            <!-- 4-Node Pipeline Diagram -->
+            <div class="df-pipeline">
+                <!-- Node 1: Client/Browser UI -->
+                <div class="df-node" id="node-ui">
+                    <div class="df-node-header">
+                        <div class="df-node-icon icon-client"><i class="fa-solid fa-display"></i></div>
+                        <span class="node-title-span">welcome.blade.php</span>
+                    </div>
+                    <span class="df-node-badge">Client UI</span>
+                    <div class="df-node-content">User specifies budget, travel dates, and interest checks. Submits form via POST request.</div>
+                </div>
+
+                <!-- Node 2: Web Router -->
+                <div class="df-node" id="node-route">
+                    <div class="df-node-header">
+                        <div class="df-node-icon icon-route"><i class="fa-solid fa-route"></i></div>
+                        <span class="node-title-span">routes/web.php</span>
+                    </div>
+                    <span class="df-node-badge">Laravel Router</span>
+                    <div class="df-node-content">Intercepts request path, enforces auth state filters, and dispatches to travel controller.</div>
+                </div>
+
+                <!-- Node 3: Laravel Controller -->
+                <div class="df-node" id="node-controller">
+                    <div class="df-node-header">
+                        <div class="df-node-icon icon-controller"><i class="fa-solid fa-gears"></i></div>
+                        <span class="node-title-span">TravelController</span>
+                    </div>
+                    <span class="df-node-badge">App Controller</span>
+                    <div class="df-node-content">Runs request validations, processes logic, binds models, and prepares view contexts.</div>
+                </div>
+
+                <!-- Node 4: Database/Model -->
+                <div class="df-node" id="node-db">
+                    <div class="df-node-header">
+                        <div class="df-node-icon icon-db"><i class="fa-solid fa-database"></i></div>
+                        <span class="node-title-span">destinations table</span>
+                    </div>
+                    <span class="df-node-badge">SQLite Database</span>
+                    <div class="df-node-content">Eloquent executes SQL matching constraints. Hydrates models, sending collection array back.</div>
+                </div>
+            </div>
+
+            <!-- Flow Details Sidebar Grid -->
+            <div class="df-flow-details">
+                <!-- Left: Pipeline Stepper -->
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1.25rem;">
+                        <i class="fa-solid fa-list-ol" style="color: var(--secondary);"></i> Request Execution Pipeline
+                    </h3>
+                    <div class="df-steps" id="df-steps-container">
+                        <!-- Dynamic Steps injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Code Snippet Panel -->
+                <div class="df-code-panel">
+                    <div class="df-code-header" id="df-code-file-label">
+                        Interactive Data Flow: <span>AI RECOMMENDATION JOURNEY</span>
+                    </div>
+                    <div class="df-code-body" id="df-code-body">
+                        <!-- Dynamic Code content injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Relations Explorer -->
+            <div style="margin-top: 3rem; border-top: 1px dashed var(--border); padding-top: 2rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;">
+                    <i class="fa-solid fa-circle-nodes" style="color: var(--accent);"></i> SQLite Database Schema & Relations Map
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.25rem;">
+                    Browse table structural models in your SQLite file. TravelScape maps these models using Eloquent relations.
+                </p>
+                <div class="schema-grid">
+                    <!-- Users -->
+                    <div class="schema-table-card">
+                        <div class="schema-table-header"><i class="fa-solid fa-users" style="color: var(--secondary); font-size: 0.75rem;"></i> users</div>
+                        <div class="schema-table-rows">
+                            <div class="schema-field"><span class="schema-field-name">id</span><span class="schema-field-type">INT (PK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">name</span><span class="schema-field-type">VARCHAR</span></div>
+                            <div class="schema-field"><span class="schema-field-name">email</span><span class="schema-field-type">VARCHAR (UQ)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">password</span><span class="schema-field-type">HASH</span></div>
+                            <div class="schema-field"><span class="schema-field-name">created_at</span><span class="schema-field-type">TIMESTAMP</span></div>
+                        </div>
+                    </div>
+                    <!-- Bookings -->
+                    <div class="schema-table-card">
+                        <div class="schema-table-header"><i class="fa-solid fa-ticket" style="color: var(--primary); font-size: 0.75rem;"></i> bookings</div>
+                        <div class="schema-table-rows">
+                            <div class="schema-field"><span class="schema-field-name">id</span><span class="schema-field-type">INT (PK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">booking_reference</span><span class="schema-field-type">STR (UQ)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">destination_id</span><span class="schema-field-type">INT (FK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">hotel_id</span><span class="schema-field-type">INT (FK, NULL)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">customer_email</span><span class="schema-field-type">VARCHAR</span></div>
+                            <div class="schema-field"><span class="schema-field-name">start_date</span><span class="schema-field-type">DATE</span></div>
+                            <div class="schema-field"><span class="schema-field-name">total_price</span><span class="schema-field-type">DECIMAL</span></div>
+                            <div class="schema-field"><span class="schema-field-name">status</span><span class="schema-field-type">VARCHAR</span></div>
+                        </div>
+                    </div>
+                    <!-- Destinations -->
+                    <div class="schema-table-card">
+                        <div class="schema-table-header"><i class="fa-solid fa-map-location-dot" style="color: var(--accent); font-size: 0.75rem;"></i> destinations</div>
+                        <div class="schema-table-rows">
+                            <div class="schema-field"><span class="schema-field-name">id</span><span class="schema-field-type">INT (PK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">name</span><span class="schema-field-type">VARCHAR</span></div>
+                            <div class="schema-field"><span class="schema-field-name">min_budget</span><span class="schema-field-type">DECIMAL</span></div>
+                            <div class="schema-field"><span class="schema-field-name">best_months</span><span class="schema-field-type">JSON</span></div>
+                            <div class="schema-field"><span class="schema-field-name">image_url</span><span class="schema-field-type">VARCHAR</span></div>
+                        </div>
+                    </div>
+                    <!-- Hotels -->
+                    <div class="schema-table-card">
+                        <div class="schema-table-header"><i class="fa-solid fa-hotel" style="color: #8b5cf6; font-size: 0.75rem;"></i> hotels</div>
+                        <div class="schema-table-rows">
+                            <div class="schema-field"><span class="schema-field-name">id</span><span class="schema-field-type">INT (PK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">destination_id</span><span class="schema-field-type">INT (FK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">name</span><span class="schema-field-type">VARCHAR</span></div>
+                            <div class="schema-field"><span class="schema-field-name">price_per_night</span><span class="schema-field-type">DECIMAL</span></div>
+                            <div class="schema-field"><span class="schema-field-name">rating</span><span class="schema-field-type">DOUBLE</span></div>
+                        </div>
+                    </div>
+                    <!-- Companions -->
+                    <div class="schema-table-card">
+                        <div class="schema-table-header"><i class="fa-solid fa-user-group" style="color: #ec4899; font-size: 0.75rem;"></i> companions</div>
+                        <div class="schema-table-rows">
+                            <div class="schema-field"><span class="schema-field-name">id</span><span class="schema-field-type">INT (PK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">user_id</span><span class="schema-field-type">INT (FK)</span></div>
+                            <div class="schema-field"><span class="schema-field-name">name</span><span class="schema-field-type">VARCHAR</span></div>
+                            <div class="schema-field"><span class="schema-field-name">relationship</span><span class="schema-field-type">VARCHAR</span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -683,6 +1157,239 @@
             console.error("Auth test error: ", error);
         });
     }
+
+    // ── INTERACTIVE SYSTEM DATA FLOW VISUALIZER SCRIPT ──
+    const journeyData = {
+        recommendation: {
+            nodes: [
+                { id: 'node-ui', class: 'highlighted-primary', badge: 'Client UI', title: 'welcome.blade.php', text: 'User specifies budget ($2000), date bounds, and checks activities. Submits form via POST request.' },
+                { id: 'node-route', class: 'highlighted', badge: 'Laravel Router', title: "Route::post('/recommend')", text: 'Routes request to TravelController@recommend, checked by auth state middleware.' },
+                { id: 'node-controller', class: 'highlighted', badge: 'App Controller', title: 'TravelController@recommend', text: 'Parses months, applies min_budget SQLite Eloquent logic, runs activity inner-joins.' },
+                { id: 'node-db', class: 'highlighted-accent', badge: 'SQLite DB', title: 'Destinations & Activities', text: 'Executes SQL filters, queries destinations by budget and seasonality. Returns recommendations view.' }
+            ],
+            steps: [
+                { num: 1, title: 'Client UI Form Submission', desc: 'The client enters travel parameters ($2,000 budget, Relaxation/Adventure checks) on welcome.blade.php, posting payload parameters to the backend.' },
+                { num: 2, title: 'Route Resolution & Auth Filter', desc: 'The routing engine maps POST /recommend to the controller, validating CSRF authenticity, and verifying auth status.' },
+                { num: 3, title: 'Eloquent Filtering Controller Logic', desc: 'TravelController parses the start month, queries Destination model checking budget filters, and checks overlap against best_months JSON field.' },
+                { num: 4, title: 'SQLite Database query & Response', desc: 'SQLite engine executes the query. Hydrates matching destinations collection, rendering recommendations.blade.php for the client.' }
+            ],
+            code: `// TravelController.php - AI recommendations logic
+public function recommend(Request $request)
+{
+    $request->validate([
+        'budget' => 'required|numeric|min:0',
+        'start_date' => 'required|date',
+        'activities' => 'array',
+    ]);
+
+    $budget = $request->budget;
+    $startMonth = date('n', strtotime($request->start_date));
+
+    // Eloquent DB logic querying SQLite
+    $destinations = Destination::query()
+        ->where('min_budget', '<=', $budget)
+        ->whereJsonContains('best_months', (int)$startMonth)
+        ->whereHas('activities', function($q) use ($request) {
+            $q->whereIn('activities.id', $request->activities);
+        })
+        ->get();
+
+    return view('recommendations', compact('destinations', 'budget'));
+}`
+        },
+        hotel: {
+            nodes: [
+                { id: 'node-ui', class: 'highlighted-primary', badge: 'Client UI', title: 'hotels/show.blade.php', text: 'User reviews hotel/airbnb details, enters travelers count, and clicks "Book Stay".' },
+                { id: 'node-route', class: 'highlighted', badge: 'Laravel Router', title: "Route::post('/hotels/{hotel}/book')", text: 'Enforces auth check. Directs post parameters to HotelController@book.' },
+                { id: 'node-controller', class: 'highlighted', badge: 'App Controller', title: 'HotelController@book', text: 'Computes total price, instantiates new Booking Eloquent instance, triggers boarding pass email.' },
+                { id: 'node-db', class: 'highlighted-accent', badge: 'SQLite DB', title: 'Bookings Database', text: 'Inserts row in bookings table (hotel_id set, status="confirmed"). Generates reference.' }
+            ],
+            steps: [
+                { num: 1, title: 'Submit Booking Form', desc: 'The authenticated user triggers a booking process on the Hotel Detail page, sending guest details and check-in date boundaries.' },
+                { num: 2, title: 'Auth Intercept & Routing', desc: 'Laravel captures POST /hotels/{hotel}/book, ensuring auth middleware blocks guests, redirecting unauthorized traffic.' },
+                { num: 3, title: 'Invoice & DB Entry Creation', desc: 'HotelController loads the Hotel model, calculates invoice prices ($PricePerNight * $Nights), and instantiates a new Booking record.' },
+                { num: 4, title: 'Database Insert & Mail Queue', desc: 'SQLite writes the booking row. A custom UUID reference is generated. Dispatches BoardingPassMail. Client redirects to confirmation view.' }
+            ],
+            code: `// HotelController.php - Hotel Stays Booking Logic
+public function book(Request $request, Hotel $hotel)
+{
+    $request->validate([
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'travelers' => 'required|integer|min:1',
+    ]);
+
+    $days = max(1, (strtotime($request->end_date) - strtotime($request->start_date)) / 86400);
+    $totalPrice = $hotel->price_per_night * $days * $request->travelers;
+
+    // Database record instantiation
+    $booking = Booking::create([
+        'destination_id' => $hotel->destination_id,
+        'hotel_id' => $hotel->id,
+        'customer_name' => auth()->user()->name,
+        'customer_email' => auth()->user()->email,
+        'start_date' => $request->start_date,
+        'end_date' => $request->end_date,
+        'num_travelers' => $request->travelers,
+        'total_price' => $totalPrice,
+        'status' => 'confirmed',
+    ]);
+
+    // Send boarding pass / confirmation email
+    Mail::to($booking->customer_email)->send(new BoardingPassMail($booking));
+
+    return redirect()->route('bookings.confirmation', $booking->booking_reference);
+}`
+        },
+        flight: {
+            nodes: [
+                { id: 'node-ui', class: 'highlighted-primary', badge: 'Client UI', title: 'flights/results.blade.php', text: 'Client executes flight search (source, destination, date, travelers). Offers render with predicted pricing.' },
+                { id: 'node-route', class: 'highlighted', badge: 'Laravel Router', title: "Route::post('/flights/search')", text: 'Captures search input payload, enforces auth middleware, redirects to FlightController@search.' },
+                { id: 'node-controller', class: 'highlighted', badge: 'App Controller', title: 'FlightController@search', text: 'Computes days to departure, issues HTTP requests to predicting model, handles timeouts, applies fallbacks.' },
+                { id: 'node-db', class: 'highlighted-accent', badge: 'SQLite DB & API', title: 'Prediction API & Destinations', text: 'Queries destinations table, makes dynamic HTTP request to Predictor API. Renders ticket cards.' }
+            ],
+            steps: [
+                { num: 1, title: 'Flight Search Input', desc: 'The traveler submits departure city and destination. The system maps airport suggestions dynamically using disk caches.' },
+                { num: 2, title: 'Route Resolution', desc: 'Laravel captures POST /flights/search, validating authenticity tokens and ensuring active session variables exist.' },
+                { num: 3, title: 'HTTP Price Prediction API POST Payload', desc: 'FlightController dispatches a REST POST payload to herokuapp /predict with JSON:<br><pre style="background:#1e293b; padding:0.5rem; border-radius:4px; margin-top:0.3rem; font-family:monospace; color:#38bdf8; font-size:0.75rem;">{\n  "airline": "Delta Air Lines",\n  "source": "New York",\n  "destination": "Paris",\n  "days_left": 14,\n  "class": "Economy",\n  "stops": "1 Stop (BOS)"\n}</pre>' },
+                { num: 4, title: 'API Response Parser & Dynamic Render', desc: 'Receives price prediction response JSON. If offline, it triggers a local regression pricing curve algorithm:<br><pre style="background:#1e293b; padding:0.5rem; border-radius:4px; margin-top:0.3rem; font-family:monospace; color:#34d399; font-size:0.75rem;">{\n  "success": true,\n  "predicted_price": 582,\n  "days_left": 14,\n  "algorithm": "RandomForest"\n}</pre>' }
+            ],
+            code: `// FlightController.php - Dynamic Flight Pricing API Integration
+public function search(Request $request)
+{
+    $request->validate([
+        'departure' => 'required|string',
+        'destination' => 'required|string',
+        'departure_date' => 'required|date',
+    ]);
+
+    $daysToDeparture = max(1, ceil((strtotime($request->departure_date) - time()) / 86400));
+    $flights = [ ... ]; // 8 distinct dynamic offers
+
+    foreach ($flights as &$flight) {
+        $apiPrice = null;
+        
+        // 1. Dynamic REST API POST request to predictive model
+        try {
+            $response = Http::timeout(1.2)->post('https://flight-price-prediction-api.herokuapp.com/predict', [
+                'airline' => $flight['airline'],
+                'source' => $request->departure,
+                'destination' => $request->destination,
+                'days_left' => $daysToDeparture,
+                'class' => $flight['class'],
+                'stops' => $flight['stops'],
+            ]);
+            
+            if ($response->successful()) {
+                $apiPrice = $response->json()['predicted_price'];
+            }
+        } catch (\\Exception $e) {
+            // Local fallback simulation triggers if API offline
+        }
+
+        $flight['price'] = $apiPrice ?: $this->calculateFallbackPrice($flight, $daysToDeparture);
+    }
+    return view('flights.results', compact('flights'));
+}`
+        },
+        auth: {
+            nodes: [
+                { id: 'node-ui', class: 'highlighted-primary', badge: 'Client UI', title: 'test.blade.php (Inspector)', text: 'Tester inspects SQLite row entries, finds target account, clicks "Login" button.' },
+                { id: 'node-route', class: 'highlighted', badge: 'Laravel Router', title: "Route::post('/test/login-as/{id}')", text: 'Intercepts developer override login requests, bypassing normal forms.' },
+                { id: 'node-controller', class: 'highlighted', badge: 'App Router Closure', title: 'Test Login Route Callback', text: 'Pulls target User model instance, triggers session authenticate and regenerates session cookies.' },
+                { id: 'node-db', class: 'highlighted-accent', badge: 'SQLite DB', title: 'Users table query', text: 'Runs SQLite search: SELECT * FROM users WHERE id = ? -> Authenticates session, redirects home.' }
+            ],
+            steps: [
+                { num: 1, title: 'Developer Impersonation request', desc: 'Clicking login on the live inspector triggers POST /test/login-as/{user_id}, calling the developer closure callback.' },
+                { num: 2, title: 'Route implicit model binding', desc: 'Laravel resolves the user ID implicit binding, executing User::findOrFail($id) automatically against SQLite.' },
+                { num: 3, title: 'Authentication bypass', desc: 'Calls Auth::login($user) to register the user session immediately, followed by session cookie regeneration.' },
+                { num: 4, title: 'Redirect & Flash alerts', desc: 'Flashes successful authentication alert into session state, redirecting traveler homepage with success banner.' }
+            ],
+            code: `// routes/web.php - Developer impersonation bypass route
+Route::post('/test/login-as/{user}', function (User $user) {
+    // Authenticate instantly bypass
+    Auth::login($user);
+    
+    // Regenerate session cookies to prevent session fixation attacks
+    request()->session()->regenerate();
+    
+    // Redirect with success flash banner
+    return redirect()->route('home')
+        ->with('success', "Logged in instantly as {$user->name}!");
+})->name('test.login-as');`
+        }
+    };
+
+    function selectJourney(journeyId) {
+        // Remove active class from buttons
+        document.querySelectorAll('.df-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Add active to selected button
+        document.getElementById('tab-btn-' + journeyId).classList.add('active');
+        
+        const data = journeyData[journeyId];
+        
+        // Render Nodes
+        data.nodes.forEach(node => {
+            const el = document.getElementById(node.id);
+            if (el) {
+                // Remove previous highlights
+                el.className = 'df-node';
+                // Add new highlights class
+                el.classList.add(node.class);
+                // Update contents
+                el.querySelector('.df-node-badge').innerText = node.badge;
+                el.querySelector('.node-title-span').innerText = node.title;
+                el.querySelector('.df-node-content').innerText = node.text;
+            }
+        });
+        
+        // Render Steps
+        const stepsContainer = document.getElementById('df-steps-container');
+        stepsContainer.innerHTML = '';
+        data.steps.forEach(step => {
+            const html = 
+                '<div class="df-step-item active">' +
+                    '<div class="df-step-num">' + step.num + '</div>' +
+                    '<div class="df-step-content">' +
+                        '<div class="df-step-title">' + step.title + '</div>' +
+                        '<div class="df-step-desc">' + step.desc + '</div>' +
+                    '</div>' +
+                '</div>';
+            stepsContainer.innerHTML += html;
+        });
+        
+        // Render Code Panel
+        const codeBody = document.getElementById('df-code-body');
+        // Escape HTML
+        const escapedCode = data.code
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        
+        codeBody.innerHTML = escapedCode;
+        
+        // Code Syntax Highlighting (regex helpers)
+        let highlighted = codeBody.innerHTML;
+        
+        // Keywords
+        highlighted = highlighted.replace(/\b(public|function|return|use|new|class|extends|protected|private|static)\b/g, '<span class="df-code-keyword">$1</span>');
+        // PHP variables
+        highlighted = highlighted.replace(/(\$[a-zA-Z0-9_]+)/g, '<span class="df-code-param">$1</span>');
+        // Comments
+        highlighted = highlighted.replace(/(\/{2}.*)/g, '<span class="df-code-comment">$1</span>');
+        
+        codeBody.innerHTML = highlighted;
+        
+        // Update active label in code header
+        document.getElementById('df-code-file-label').innerHTML = 'Interactive Data Flow: <span>' + journeyId.toUpperCase() + ' JOURNEY</span>';
+    }
+
+    // Initialize defaults on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+        selectJourney('recommendation');
+    });
 </script>
 
 </body>
